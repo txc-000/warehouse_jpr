@@ -1,0 +1,31 @@
+/* Sembunyikan semua elemen yang tidak perlu saat print */
+@media print {
+  /* Sembunyikan sidebar */
+  .sidebar {
+    display: none !important;
+  }
+
+  /* Sembunyikan header halaman dan tombol cetak */
+  .dashboard-header,
+  .button-cetak {
+    display: none !important;
+  }
+
+  /* Pastikan area konten dan tabel mengisi seluruh halaman */
+  .content-area {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .dashboard-content {
+    padding: 0 !important;
+  }
+
+  .tabel-container-full {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+  }
+}

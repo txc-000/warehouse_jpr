@@ -1,0 +1,51 @@
+.dashboard-content {
+  padding: 30px;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #222;
+}
+
+.dashboard-header p {
+  margin: 5px 0 0;
+  font-size: 1rem;
+  color: #666;
+}
+
+.header-nav-links {
+  margin-top: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Ganti selector dari 'a.nav-link' menjadi 'button.nav-link' */
+.header-nav-links .nav-link {
+  /* Hapus styling default <a> */
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-right: 25px;
+  padding-bottom: 15px;
+  
+  /* Tambahkan styling untuk mereset <button> */
+  background: none;
+  border: none;
+  font-family: inherit; /* Ambil font dari body */
+  cursor: pointer;
+  
+  /* Styling untuk border bawah */
+  border-bottom: 3px solid transparent;
+  color: #007bff; /* Set warna default */
+}
+
+/* Style untuk link yang aktif atau di-hover */
+.header-nav-links .nav-link.active,
+.header-nav-links .nav-link:hover {
+  color: #0056b3;
+  border-bottom: 3px solid #007bff;
+}

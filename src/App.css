@@ -1,0 +1,8 @@
+.app-container {
+  display: flex;
+}
+.content-area {
+  flex: 1; /* Mengisi sisa ruang */
+  height: 100vh; /* Set tinggi agar bisa di-scroll */
+  overflow-y: auto; /* Scroll hanya jika konten panjang */
+}

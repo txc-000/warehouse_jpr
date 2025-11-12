@@ -1,0 +1,99 @@
+/* Kita buat container tabel baru agar lebarnya penuh */
+.tabel-container-full {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow-x: auto; /* Agar tabel bisa di-scroll di layar kecil */
+}
+
+/* Style tabel (mirip dengan UkuranSepatu.css) */
+.tabel-container-full table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabel-container-full th,
+.tabel-container-full td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.tabel-container-full th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  color: #555;
+}
+
+.tabel-container-full tr:last-child td {
+  border-bottom: none;
+}
+
+/* Style untuk tombol di dalam tabel */
+.tabel-container-full td {
+  white-space: nowrap; /* Mencegah tombol turun baris */
+}
+
+.tabel-container-full .edit-button,
+.tabel-container-full .delete-button {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-right: 5px;
+  color: white;
+}
+
+.tabel-container-full .edit-button {
+  background-color: #007bff; /* Biru */
+}
+.tabel-container-full .edit-button:hover {
+  background-color: #0056b3;
+}
+
+.tabel-container-full .delete-button {
+  background-color: #d9534f; /* Merah */
+}
+.tabel-container-full .delete-button:hover {
+  background-color: #c9302c;
+}
+/* ... (semua style tabel yang sudah ada) ... */
+/* TAMBAHKAN STYLE DI BAWAH INI */
+.button-tambah {
+  background-color: #28a745; /* Hijau */
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.button-tambah:hover {
+  background-color: #218838;
+}
+
+/* ... (semua style tabel & tombol tambah yang sudah ada) ... */
+
+
+/* TAMBAHKAN STYLE DI BAWAH INI */
+.button-cetak {
+  background-color: #007bff; /* Biru */
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.button-cetak:hover {
+  background-color: #0056b3;
+}
