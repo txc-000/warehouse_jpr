@@ -2,11 +2,25 @@ import React, { useState, useEffect } from 'react';
 import './EditModal.css'; // CSS untuk modal
 import './TransactionForm.css'; // Pakai ulang style form
 
+// --- DATA CONTOH (DUMMY) ---
+// Kita perlukan ini untuk mengisi pilihan di dropdown
+// 1. Daftar Produk
+const mockProdukList = [
+  { id: 'SKU-001', nama: 'Sepatu Lari Model X' },
+  { id: 'SKU-002', nama: 'Sandal Model Y' },
+  { id: 'SKU-003', nama: 'Sepatu Kantor Pria' },
+];
+
+// 2. Daftar Paket
+const mockPaketList = [
+  { id: 1, nama: 'Seri 38-42 (Isi 12)' },
+  { id: 2, nama: 'Seri 39-43 (Isi 12)' },
+  { id: 3, nama: 'Seri Anak A (Isi 20)' },
+];
+
 function EditModal({ transaction, onClose, onSave }) {
-  // Komponen ini punya state internal untuk form
   const [formData, setFormData] = useState(transaction);
 
-  // Update state jika prop 'transaction' berubah
   useEffect(() => {
     setFormData(transaction);
   }, [transaction]);
@@ -18,45 +32,80 @@ function EditModal({ transaction, onClose, onSave }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData); // Kirim data yang sudah di-update ke parent
+    // Di sini, kita perlu mencocokkan kembali nama produk & paket berdasarkan ID
+    // sebelum menyimpan, agar tampilan di tabel ikut update.
+    
+    const produkTerpilih = mockProdukList.find(p => p.id === formData.id_produk);
+    const paketTerpilih = mockPaketList.find(p => p.id === Number(formData.id_paket_seri));
+
+    const dataFinalUntukDisimpan = {
+      ...formData,
+      namaProduk: produkTerpilih ? produkTerpilih.nama : 'Produk Tidak Ditemukan',
+      namaPaket: paketTerpilih ? paketTerpilih.nama : 'Paket Tidak Ditemukan',
+      // pastikan jumlahDus adalah angka
+      jumlahDus: Number(formData.jumlahDus) 
+    };
+
+    onSave(dataFinalUntukDisimpan); // Kirim data yang sudah di-update ke parent
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content form-container">
-        <h3>Edit Transaksi Masuk</h3>
+        <h3>Edit Transaksi Masuk (Grosir)</h3>
         <form onSubmit={handleSubmit}>
-          {/* Form ini mirip TransactionForm, tapi kita beri 'name' */}
+          
+          {/* --- FORMULIR YANG SUDAH DIGANTI --- */}
+
           <div className="form-group">
-            <label htmlFor="kodeSepatu">Kode Sepatu</label>
-            <input
-              type="text"
-              id="kodeSepatu"
-              name="kodeSepatu"
-              value={formData.kodeSepatu}
+            <label htmlFor="id_produk">Produk</label>
+            <select
+              id="id_produk"
+              name="id_produk"
+              value={formData.id_produk}
               onChange={handleChange}
-            />
+              required
+            >
+              <option value="" disabled>-- Pilih produk --</option>
+              {mockProdukList.map(produk => (
+                <option key={produk.id} value={produk.id}>
+                  {produk.nama} ({produk.id})
+                </option>
+              ))}
+            </select>
           </div>
+          
           <div className="form-group">
-            <label htmlFor="size">Size</label>
+            <label htmlFor="id_paket_seri">Paket Seri</label>
+            <select
+              id="id_paket_seri"
+              name="id_paket_seri"
+              value={formData.id_paket_seri}
+              onChange={handleChange}
+              required
+            >
+              <option value="" disabled>-- Pilih paket grosir --</option>
+              {mockPaketList.map(paket => (
+                <option key={paket.id} value={paket.id}>
+                  {paket.nama}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="jumlahDus">Jumlah Dus Masuk</label>
             <input
               type="number"
-              id="size"
-              name="size"
-              value={formData.size}
+              id="jumlahDus"
+              name="jumlahDus"
+              value={formData.jumlahDus}
               onChange={handleChange}
+              min="1"
+              required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="jumlah">Jumlah Masuk</label>
-            <input
-              type="number"
-              id="jumlah"
-              name="jumlah"
-              value={formData.jumlah}
-              onChange={handleChange}
-            />
-          </div>
+
           <div className="form-group">
             <label htmlFor="supplier">Supplier</label>
             <input
@@ -65,6 +114,7 @@ function EditModal({ transaction, onClose, onSave }) {
               name="supplier"
               value={formData.supplier}
               onChange={handleChange}
+              required
             />
           </div>
 

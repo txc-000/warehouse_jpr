@@ -15,6 +15,7 @@ import DataMasterSizePage from './pages/DataMasterSizePage.jsx';
 import VerifikasiStokPage from './pages/VerifikasiStokPage.jsx';
 import LaporanStokPage from './pages/LaporanStokPage.jsx';
 import KelolaUserPage from './pages/KelolaUserPage.jsx';
+import PaketSeriPage from './pages/PaketSeriPage.jsx';
 // <-- SAMPAI SINI -->
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
         <Route path="verifikasi-stok" element={<VerifikasiStokPage />} />
         <Route path="laporan-stok" element={<LaporanStokPage />} />
         <Route path="kelola-user" element={<KelolaUserPage />} />
+        <Route path="/paket-seri" element={<PaketSeriPage />} />
       </Route>
 
       {/* Jika ada rute yang tidak cocok, kembali ke login */}

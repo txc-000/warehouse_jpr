@@ -1,74 +1,82 @@
 import React, { useState } from 'react';
 import './EditTransaksiPage.css'; // Pakai ulang CSS tabel
-import './LaporanStok.css'; // 1. IMPORT CSS PRINT YANG BARU
+import './LaporanStok.css'; // Tetap import CSS ini
 
-// --- SIMULASI DATA (Sama seperti Verifikasi Stok) ---
-const masterSepatu = [
-  { id: 1, kodeSepatu: 'AF1-001', namaSepatu: 'Air Force 1 \'07' },
-  { id: 2, kodeSepatu: 'ADS-SMBA', namaSepatu: 'Samba OG' },
-  { id: 3, kodeSepatu: 'NB-550', namaSepatu: '550' },
+// --- SIMULASI DATA (VERSI GROSIR PER DUS + MERK) ---
+// (Data ini tetap sama, tidak perlu diubah)
+const laporanStokPerDus = [
+  { id: 1, merk: 'Nike', namaProduk: 'Air Force 1 \'07', namaPaket: 'Seri 38-42 (Isi 12)', stokAwal: 10, masuk: 5, keluar: 3 },
+  { id: 2, merk: 'Nike', namaProduk: 'Air Force 1 \'07', namaPaket: 'Seri 39-43 (Isi 12)', stokAwal: 8, masuk: 10, keluar: 5 },
+  { id: 3, merk: 'Adidas', namaProduk: 'Samba OG', namaPaket: 'Seri 38-42 (Isi 12)', stokAwal: 15, masuk: 0, keluar: 7 },
+  { id: 4, merk: 'New Balance', namaProduk: '550', namaPaket: 'Seri Anak A (Isi 20)', stokAwal: 20, masuk: 10, keluar: 10 },
 ];
-const dataStok = [
-  { idSepatu: 1, stokAwal: 20, masuk: 15, keluar: 8 },
-  { idSepatu: 2, stokAwal: 30, masuk: 5, keluar: 12 },
-  { idSepatu: 3, stokAwal: 15, masuk: 20, keluar: 10 },
-];
-const stokGudang = masterSepatu.map(sepatu => {
-  const stok = dataStok.find(s => s.idSepatu === sepatu.id);
-  const stokAkhir = (stok.stokAwal + stok.masuk) - stok.keluar;
-  return { ...sepatu, ...stok, stokAkhir: stokAkhir };
-});
 // --- END SIMULASI DATA ---
 
 function LaporanStokPage() {
-  const [daftarStok] = useState(stokGudang);
+  const [daftarStok] = useState(laporanStokPerDus);
 
-  // 2. Fungsi untuk memanggil dialog print browser
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="dashboard-content">
-      <header className="dashboard-header">
-        <h1>Mencetak Laporan Stok</h1>
-        <p>Gunakan tombol di bawah untuk mencetak laporan stok akhir.</p>
-      </header>
+    // 1. HAPUS 'no-print' DARI PEMBUNGKUS UTAMA INI
+    <div className="dashboard-content"> 
+      
+      {/* 2. BUAT PEMBUNGKUS 'no-print' BARU HANYA UNTUK HEADER & TOMBOL */}
+      <div className="no-print">
+        <header className="dashboard-header">
+          <h1>Mencetak Laporan Stok</h1>
+          <p>Gunakan tombol di bawah untuk mencetak laporan stok akhir.</p>
+        </header>
 
-      {/* 3. Tombol Cetak (Gaya 'button-tambah' tapi beda warna) */}
-      <button className="button-cetak" onClick={handlePrint}>
-        🖨️ Cetak Laporan
-      </button>
+        <button className="button-cetak" onClick={handlePrint}>
+          🖨️ Cetak Laporan
+        </button>
+      </div>
 
-      {/* Area ini adalah yang akan dicetak.
-        Kita beri id 'laporan-area' untuk referensi (opsional)
-      */}
+      {/* 3. Area cetak ini SEKARANG BERADA DI LUAR 'no-print' */}
       <div id="laporan-area" className="tabel-container-full">
-        <h3>Laporan Stok Akhir - Per Tanggal (Otomatis)</h3>
+        
+        <h3 className="judul-laporan">Laporan Stok Akhir (per Dus)</h3>
+        
+        <p className="tanggal-laporan">
+          Dicetak pada: {new Date().toLocaleString('id-ID', {
+            dateStyle: 'long', 
+            timeStyle: 'medium', 
+            hour12: false
+          })}
+        </p>
+
         <table>
           <thead>
             <tr>
-              <th>Kode Sepatu</th>
-              <th>Nama Sepatu</th>
-              <th>Stok Awal</th>
-              <th>Masuk</th>
-              <th>Keluar</th>
-              <th>Stok Akhir</th>
+              <th>Merk</th>
+              <th>Nama Produk</th>
+              <th>Nama Paket Seri</th>
+              <th>Stok Awal (Dus)</th>
+              <th>Masuk (Dus)</th>
+              <th>Keluar (Dus)</th>
+              <th>Stok Akhir (Dus)</th>
             </tr>
           </thead>
           <tbody>
-            {daftarStok.map(item => (
-              <tr key={item.id}>
-                <td>{item.kodeSepatu}</td>
-                <td>{item.namaSepatu}</td>
-                <td>{item.stokAwal}</td>
-                <td>{item.masuk}</td>
-                <td>{item.keluar}</td>
-                <td style={{ fontWeight: 'bold' }}>
-                  {item.stokAkhir}
-                </td>
-              </tr>
-            ))}
+            {daftarStok.map(item => {
+              const stokAkhir = (item.stokAwal + item.masuk) - item.keluar;
+              return (
+                <tr key={item.id}>
+                  <td>{item.merk}</td>
+                  <td>{item.namaProduk}</td>
+                  <td>{item.namaPaket}</td>
+                  <td>{item.stokAwal}</td>
+                  <td>{item.masuk}</td>
+                  <td>{item.keluar}</td>
+                  <td style={{ fontWeight: 'bold' }}>
+                    {stokAkhir}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

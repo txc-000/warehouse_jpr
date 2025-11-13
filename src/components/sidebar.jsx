@@ -32,10 +32,11 @@ function Sidebar() {
     // Kirim user kembali ke halaman login
     navigate('/login');
   };
-  // 4. Tambahkan properti 'to' (URL tujuan) ke data kita
+  // Data yang Sudah Diperbarui
   const adminMasukItems = [
     { title: 'Pengelolaan Data Sepatu Master', to: '/data-sepatu' },
     { title: 'Pengelolaan Data Master Size', to: '/data-size' },
+    { title: 'Pengelolaan Paket Seri', to: '/paket-seri' }, // <-- TAMBAHKAN BARIS INI
     { title: 'Transaksi Sepatu Masuk', to: '/sepatu-masuk' },
     { title: 'Edit Transaksi Barang Masuk', to: '/edit-transaksi' },
   ];

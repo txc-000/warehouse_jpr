@@ -1,0 +1,156 @@
+/* Styling dasar untuk container halaman */
+.paket-seri-container {
+  padding: 24px;
+  font-family: Arial, sans-serif;
+  background-color: #f9fafb; /* Warna latar belakang netral */
+}
+
+.paket-seri-container h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.paket-seri-container p {
+  font-size: 14px;
+  color: #6b7280; /* Abu-abu */
+  margin-bottom: 24px;
+}
+
+/* Kartu untuk membungkus form */
+.form-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+/* Grup form untuk label dan input */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-sizing: border-box; /* Penting untuk padding */
+}
+
+/* Styling untuk komposisi dinamis */
+.komposisi-header,
+.komposisi-row {
+  display: flex;
+  gap: 16px; /* Jarak antar kolom */
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.komposisi-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Lebar kolom */
+.komposisi-col-ukuran { flex: 3; }
+.komposisi-col-jumlah { flex: 2; }
+.komposisi-col-aksi { flex: 1; text-align: right; }
+
+/* Input di dalam baris komposisi */
+.komposisi-row select,
+.komposisi-row input[type="number"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* Tombol-tombol */
+.btn-hapus-baris {
+  background-color: #fee2e2; /* Merah muda */
+  color: #dc2626; /* Merah tua */
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-hapus-baris:hover {
+  background-color: #fecaca;
+}
+
+.btn-tambah-baris {
+  background-color: #e0e7ff; /* Biru muda */
+  color: #4f46e5; /* Biru tua */
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.btn-tambah-baris:hover {
+  background-color: #c7d2fe;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 24px 0;
+}
+
+/* Tampilan Total */
+.total-display {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: right;
+}
+.total-angka {
+  display: inline-block;
+  min-width: 60px;
+  text-align: left;
+  color: #4f46e5; /* Biru */
+  margin-left: 12px;
+}
+
+/* Tombol Simpan Utama */
+.btn-simpan-paket {
+  width: 100%;
+  background-color: #2563eb; /* Biru */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-simpan-paket:hover {
+  background-color: #1d4ed8;
+}

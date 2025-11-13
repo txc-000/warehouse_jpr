@@ -2,11 +2,30 @@ import React, { useState } from 'react';
 import EditModal from '../components/EditModal.jsx'; // Import modal
 import './EditTransaksiPage.css'; // CSS untuk tabel di halaman ini
 
-// Data dummy (di aplikasi nyata, ini datang dari API)
+// --- DATA DUMMY (VERSI GROSIR) ---
+// Data ini sekarang mencerminkan alur bisnis baru kita.
 const initialData = [
-  { id: 1, kodeSepatu: 'SKU-001', size: 42, jumlah: 10, supplier: 'Supplier A' },
-  { id: 2, kodeSepatu: 'SKU-002', size: 40, jumlah: 5, supplier: 'Supplier B' },
-  { id: 3, kodeSepatu: 'SKU-001', size: 41, jumlah: 8, supplier: 'Supplier A' },
+  { 
+    id: 1, 
+    namaProduk: 'Sepatu Lari Model X', 
+    namaPaket: 'Seri 38-42 (Isi 12)', 
+    jumlahDus: 10, 
+    supplier: 'Supplier A' 
+  },
+  { 
+    id: 2, 
+    namaProduk: 'Sandal Model Y', 
+    namaPaket: 'Seri Anak A (Isi 20)', 
+    jumlahDus: 5, 
+    supplier: 'Supplier B' 
+  },
+  { 
+    id: 3, 
+    namaProduk: 'Sepatu Lari Model X', 
+    namaPaket: 'Seri 39-43 (Isi 12)', 
+    jumlahDus: 8, 
+    supplier: 'Supplier A' 
+  },
 ];
 
 function EditTransaksiPage() {
@@ -28,6 +47,7 @@ function EditTransaksiPage() {
 
   // Fungsi untuk menyimpan perubahan
   const handleSave = (updatedData) => {
+    // Logika ini tetap sama, hanya saja 'updatedData'-nya punya struktur baru
     setTransactions(prev =>
       prev.map(t => (t.id === updatedData.id ? updatedData : t))
     );
@@ -50,23 +70,25 @@ function EditTransaksiPage() {
 
       <div className="tabel-container-full">
         <table>
+          {/* --- HEADER TABEL (DIUBAH) --- */}
           <thead>
             <tr>
               <th>ID</th>
-              <th>Kode Sepatu</th>
-              <th>Size</th>
-              <th>Jumlah</th>
+              <th>Nama Produk</th>
+              <th>Paket Seri</th>
+              <th>Jumlah Dus</th>
               <th>Supplier</th>
               <th>Aksi</th>
             </tr>
           </thead>
+          {/* --- ISI TABEL (DIUBAH) --- */}
           <tbody>
             {transactions.map(item => (
               <tr key={item.id}>
                 <td>{item.id}</td>
-                <td>{item.kodeSepatu}</td>
-                <td>{item.size}</td>
-                <td>{item.jumlah}</td>
+                <td>{item.namaProduk}</td>
+                <td>{item.namaPaket}</td>
+                <td>{item.jumlahDus}</td>
                 <td>{item.supplier}</td>
                 <td>
                   <button className="edit-button" onClick={() => handleEdit(item)}>
@@ -88,6 +110,7 @@ function EditTransaksiPage() {
           transaction={selectedTransaction}
           onClose={handleClose}
           onSave={handleSave}
+          // Kita akan butuh file EditModal.jsx untuk diperbaiki
         />
       )}
     </div>

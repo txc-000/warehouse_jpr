@@ -1,31 +1,70 @@
-/* Sembunyikan semua elemen yang tidak perlu saat print */
+/* LaporanStok.css */
+
+/* Style untuk judul di atas tabel laporan (tetap sama) */
+.judul-laporan {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.tanggal-laporan {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+
+/* --- KODE BARU UNTUK FUNGSI PRINT (LEBIH KUAT) --- */
 @media print {
-  /* Sembunyikan sidebar */
-  .sidebar {
-    display: none !important;
+  
+  /* 1. Sembunyikan SEMUA elemen di body secara default */
+  body * {
+    visibility: hidden;
   }
 
-  /* Sembunyikan header halaman dan tombol cetak */
-  .dashboard-header,
-  .button-cetak {
-    display: none !important;
+  /* 2. Tampilkan HANYA area laporan (#laporan-area) dan semua isinya (*) */
+  #laporan-area, #laporan-area * {
+    visibility: visible;
   }
 
-  /* Pastikan area konten dan tabel mengisi seluruh halaman */
-  .content-area {
-    width: 100% !important;
-    height: auto !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  /* 3. Atur posisi area laporan agar mengisi halaman */
+  #laporan-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px; /* Beri sedikit margin cetak */
+    border: none;
+    box-shadow: none;
+  }
+  
+  /* 4. Sembunyikan elemen-elemen ini (untuk jaga-jaga) */
+  .sidebar, 
+  .dashboard-header, 
+  .button-cetak, 
+  .logout-link,
+  .no-print {
+    display: none !important; /* Pastikan mereka benar-benar hilang */
+    visibility: hidden !important;
+  }
+  
+  /* 5. Style tabel untuk cetak (sudah benar) */
+  table {
+    width: 100%;
+    font-size: 12pt;
   }
 
-  .dashboard-content {
-    padding: 0 !important;
+  th, td {
+    border: 1px solid #000 !important; /* Garis solid saat cetak */
+    padding: 8px;
+  }
+  
+  th {
+    background-color: #f0f0f0 !important;
   }
 
   .tabel-container-full {
-    box-shadow: none !important;
-    border: 1px solid #ccc;
+    box-shadow: none;
+    border-radius: 0;
   }
 }
