@@ -2,26 +2,34 @@ import React, { useState } from 'react';
 import EditModal from '../components/EditModal.jsx'; // Import modal
 import './EditTransaksiPage.css'; // CSS untuk tabel di halaman ini
 
-// --- DATA DUMMY (VERSI GROSIR) ---
-// Data ini sekarang mencerminkan alur bisnis baru kita.
+// --- DATA DUMMY (VERSI GROSIR + MERK) ---
 const initialData = [
   { 
     id: 1, 
+    id_produk: 'SKU-001',
+    merk: 'Nike', // <-- MERK DITAMBAHKAN
     namaProduk: 'Sepatu Lari Model X', 
+    id_paket_seri: 1,
     namaPaket: 'Seri 38-42 (Isi 12)', 
     jumlahDus: 10, 
     supplier: 'Supplier A' 
   },
   { 
     id: 2, 
+    id_produk: 'SKU-002',
+    merk: 'Adidas', // <-- MERK DITAMBAHKAN
     namaProduk: 'Sandal Model Y', 
+    id_paket_seri: 3,
     namaPaket: 'Seri Anak A (Isi 20)', 
     jumlahDus: 5, 
     supplier: 'Supplier B' 
   },
   { 
     id: 3, 
+    id_produk: 'SKU-001',
+    merk: 'Nike', // <-- MERK DITAMBAHKAN
     namaProduk: 'Sepatu Lari Model X', 
+    id_paket_seri: 2,
     namaPaket: 'Seri 39-43 (Isi 12)', 
     jumlahDus: 8, 
     supplier: 'Supplier A' 
@@ -33,28 +41,24 @@ function EditTransaksiPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-  // Fungsi untuk membuka modal dan set data
+  // Fungsi-fungsi ini (handleEdit, handleClose) sudah benar
   const handleEdit = (transaction) => {
     setSelectedTransaction(transaction);
     setIsModalOpen(true);
   };
 
-  // Fungsi untuk menutup modal
   const handleClose = () => {
     setIsModalOpen(false);
     setSelectedTransaction(null);
   };
 
-  // Fungsi untuk menyimpan perubahan
   const handleSave = (updatedData) => {
-    // Logika ini tetap sama, hanya saja 'updatedData'-nya punya struktur baru
     setTransactions(prev =>
       prev.map(t => (t.id === updatedData.id ? updatedData : t))
     );
-    handleClose(); // Tutup modal setelah save
+    handleClose();
   };
 
-  // Fungsi untuk menghapus
   const handleDelete = (id) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
       setTransactions(prev => prev.filter(t => t.id !== id));
@@ -74,6 +78,7 @@ function EditTransaksiPage() {
           <thead>
             <tr>
               <th>ID</th>
+              <th>Merk</th> {/* <-- MERK DITAMBAHKAN */}
               <th>Nama Produk</th>
               <th>Paket Seri</th>
               <th>Jumlah Dus</th>
@@ -86,6 +91,7 @@ function EditTransaksiPage() {
             {transactions.map(item => (
               <tr key={item.id}>
                 <td>{item.id}</td>
+                <td>{item.merk}</td> {/* <-- MERK DITAMBAHKAN */}
                 <td>{item.namaProduk}</td>
                 <td>{item.namaPaket}</td>
                 <td>{item.jumlahDus}</td>
@@ -104,13 +110,11 @@ function EditTransaksiPage() {
         </table>
       </div>
 
-      {/* Tampilkan modal jika isModalOpen bernilai true */}
       {isModalOpen && (
         <EditModal
           transaction={selectedTransaction}
           onClose={handleClose}
           onSave={handleSave}
-          // Kita akan butuh file EditModal.jsx untuk diperbaiki
         />
       )}
     </div>

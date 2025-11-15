@@ -1,24 +1,22 @@
 import React from 'react';
 import './Sidebar.css';
-import { NavLink, useNavigate } from 'react-router-dom'; // <-- UBAH BARIS INI
+import { NavLink, useNavigate } from 'react-router-dom'; 
 
-// 2. Ubah NavItem agar menggunakan NavLink
+// Komponen NavItem (sudah benar)
 const NavItem = ({ title, to }) => (
   <NavLink
     to={to}
-    // Ini akan otomatis menambahkan class 'active' jika URL-nya cocok
     className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
   >
     {title}
   </NavLink>
 );
 
-// Komponen helper untuk grup navigasi
+// Komponen NavSection (sudah benar)
 const NavSection = ({ title, items }) => (
   <div className="nav-section">
     <h3>{title}</h3>
     {items.map((item) => (
-      // 3. Pastikan 'to' prop diteruskan
       <NavItem key={item.title} title={item.title} to={item.to} />
     ))}
   </div>
@@ -27,41 +25,61 @@ const NavSection = ({ title, items }) => (
 function Sidebar() {
   const navigate = useNavigate();
   
+  // --- INI ADALAH SAKLAR ROLE ANDA ---
+  const userRole = 'pemilik'; // <-- Atur role di sini
+  // ------------------------------------
+
   const handleLogout = (e) => {
     e.preventDefault();
-    // Kirim user kembali ke halaman login
     navigate('/login');
   };
-  // Data yang Sudah Diperbarui
+  
+  // Path dashboard sudah unik (ini sudah benar)
   const adminMasukItems = [
+    { title: 'Dashboard', to: '/dashboard-admin-masuk' }, 
     { title: 'Pengelolaan Data Sepatu Master', to: '/data-sepatu' },
     { title: 'Pengelolaan Data Master Size', to: '/data-size' },
-    { title: 'Pengelolaan Paket Seri', to: '/paket-seri' }, // <-- TAMBAHKAN BARIS INI
+    { title: 'Pengelolaan Paket Seri', to: '/paket-seri' },
     { title: 'Transaksi Sepatu Masuk', to: '/sepatu-masuk' },
     { title: 'Edit Transaksi Barang Masuk', to: '/edit-transaksi' },
   ];
 
   const adminKeluarItems = [
+    { title: 'Dashboard', to: '/dashboard-admin-keluar' }, 
     { title: 'Transaksi Sepatu Keluar', to: '/sepatu-keluar' },
   ];
 
   const pemilikItems = [
+    { title: 'Dashboard', to: '/dashboard-pemilik' }, 
     { title: 'Verifikasi Stok Barang', to: '/verifikasi-stok' },
     { title: 'Mencetak Laporan Stok', to: '/laporan-stok' },
+    // --- (INI PERUBAHANNYA) ---
+    { title: 'History Transaksi', to: '/history' }, 
     { title: 'Kelola Akses User', to: '/kelola-user' },
   ];
 
   return (
     <div className="sidebar">
+      
       <h2>Manajemen Gudang</h2>
       
-      <NavSection title="ADMIN BARANG MASUK" items={adminMasukItems} />
-      <NavSection title="ADMIN BARANG KELUAR" items={adminKeluarItems} />
-      <NavSection title="PEMILIK" items={pemilikItems} />
-
-    <a href="#" className="logout-link" onClick={handleLogout}>
+      <div className="sidebar-menu-wrapper">
+        {(userRole === 'admin_masuk' || userRole === 'pemilik') && (
+          <NavSection title="ADMIN BARANG MASUK" items={adminMasukItems} />
+        )}
+        
+        {(userRole === 'admin_keluar' || userRole === 'pemilik') && (
+          <NavSection title="ADMIN BARANG KELUAR" items={adminKeluarItems} />
+        )}
+        
+        {userRole === 'pemilik' && (
+          <NavSection title="PEMILIK" items={pemilikItems} />
+        )}
+      </div> 
+      
+      <a href="#" className="logout-link" onClick={handleLogout}>
        Logout (Login User)
-    </a>
+      </a>
     </div>
   );
 }

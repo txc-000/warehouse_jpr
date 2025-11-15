@@ -13,6 +13,8 @@
   color: #333;
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+  /* (PENTING) Pastikan H2 tidak 'shrink' */
+  flex-shrink: 0; 
 }
 
 .nav-section {
@@ -54,4 +56,25 @@
   text-decoration: none;
   font-weight: 500;
   padding: 10px 0;
+  /* (PENTING) Pastikan logout tidak 'shrink' */
+  flex-shrink: 0; 
+}
+
+/* === INI ADALAH KODE BARU UNTUK MEMPERBAIKI SCROLL === */
+
+.sidebar-menu-wrapper {
+  flex-grow: 1; /* (PENTING) Bikin div ini mengisi sisa ruang */
+  overflow-y: auto; /* (PENTING) Tambahkan scrollbar jika menu terlalu panjang */
+  
+  /* (Opsional) Beri jarak sedikit di bawah menu terakhir */
+  padding-bottom: 20px; 
+}
+
+/* (Opsional) Style scrollbar agar terlihat lebih bagus */
+.sidebar-menu-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-menu-wrapper::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
 }

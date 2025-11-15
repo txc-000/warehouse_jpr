@@ -1,46 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './TransactionForm.css';
 
-// --- DATA CONTOH (DUMMY) ---
-// Nanti, data ini akan Anda dapatkan dari backend/API
-
-// 1. Daftar Produk (dari Data Sepatu Master)
-const mockProdukList = [
-  { id: 'SKU-001', nama: 'Sepatu Lari Model X' },
-  { id: 'SKU-002', nama: 'Sandal Model Y' },
-  { id: 'SKU-003', nama: 'Sepatu Kantor Pria' },
+// --- (1) STRUKTUR DATA BARU (SAMA SEPERTI EDITMODAL) ---
+const mockMerkList = [
+  { id: 1, nama: 'Nike' },
+  { id: 2, nama: 'Adidas' },
+  { id: 3, nama: 'New Balance' },
 ];
 
-// 2. Daftar Paket (dari Pengelolaan Paket Seri)
+// Produk sekarang terhubung ke Merk via 'merkId'
+const mockProdukList = [
+  { id: 'SKU-001', nama: 'Sepatu Lari Model X', merkId: 1 },
+  { id: 'SKU-004', nama: 'Air Force 1 \'07', merkId: 1 },
+  { id: 'SKU-002', nama: 'Sandal Model Y', merkId: 2 },
+  { id: 'SKU-005', nama: 'Samba OG', merkId: 2 },
+  { id: 'SKU-003', nama: '550', merkId: 3 },
+];
+
 const mockPaketList = [
   { id: 1, nama: 'Seri 38-42 (Isi 12)' },
   { id: 2, nama: 'Seri 39-43 (Isi 12)' },
   { id: 3, nama: 'Seri Anak A (Isi 20)' },
 ];
+// --- BATAS DATA BARU ---
 
 function TransactionForm() {
-  // --- STATE BARU SESUAI LOGIKA GROSIR ---
+  // --- (2) STATE DIPERBARUI ---
+  const [selectedMerkId, setSelectedMerkId] = useState(''); // <-- State baru untuk Merk
   const [selectedProdukId, setSelectedProdukId] = useState('');
   const [selectedPaketId, setSelectedPaketId] = useState('');
-  const [jumlahDus, setJumlahDus] = useState('1'); // <-- diubah dari 'jumlah'
+  const [jumlahDus, setJumlahDus] = useState('1');
   const [supplier, setSupplier] = useState('');
 
+  // --- (3) LOGIKA DROPDOWN BERTINGKAT ---
+  const filteredProdukList = useMemo(() => {
+    if (!selectedMerkId) return [];
+    return mockProdukList.filter(p => p.merkId === Number(selectedMerkId));
+  }, [selectedMerkId]);
+
+  const handleMerkChange = (e) => {
+    setSelectedMerkId(e.target.value);
+    setSelectedProdukId(''); // Reset produk saat merk ganti
+  };
+  
+  // --- (4) LOGIKA SUBMIT DIPERBARUI ---
   const handleSubmit = (event) => {
     event.preventDefault(); 
     
-    // Data yang dikirim ke backend sekarang sesuai dengan bisnis grosir
+    // Cari nama & merk berdasarkan ID
+    const merkTerpilih = mockMerkList.find(m => m.id === Number(selectedMerkId));
+    
     const dataUntukBackend = {
       id_produk: selectedProdukId,
+      merk: merkTerpilih ? merkTerpilih.nama : 'Tidak Diketahui',
       id_paket_seri: selectedPaketId,
       jumlah_dus: Number(jumlahDus),
       supplier: supplier,
     };
 
     console.log('Data Transaksi Masuk (Grosir):', dataUntukBackend);
-    
     alert('Transaksi (grosir) berhasil disimpan!');
     
     // Reset form
+    setSelectedMerkId('');
     setSelectedProdukId('');
     setSelectedPaketId('');
     setJumlahDus('1');
@@ -53,7 +75,24 @@ function TransactionForm() {
       
       <form onSubmit={handleSubmit}>
 
-        {/* --- DROPDOWN PRODUK (BARU) --- */}
+        {/* --- (5) FORMULIR BARU DENGAN 3 DROPDOWN --- */}
+        <div className="form-group">
+          <label htmlFor="merk">Merk</label>
+          <select
+            id="merk"
+            value={selectedMerkId}
+            onChange={handleMerkChange}
+            required
+          >
+            <option value="" disabled>-- Pilih Merk --</option>
+            {mockMerkList.map(merk => (
+              <option key={merk.id} value={merk.id}>
+                {merk.nama}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="form-group">
           <label htmlFor="produk">Pilih Produk</label>
           <select
@@ -61,9 +100,10 @@ function TransactionForm() {
             value={selectedProdukId}
             onChange={(e) => setSelectedProdukId(e.target.value)}
             required
+            disabled={!selectedMerkId} // Nonaktif jika merk belum dipilih
           >
             <option value="" disabled>-- Pilih produk --</option>
-            {mockProdukList.map(produk => (
+            {filteredProdukList.map(produk => (
               <option key={produk.id} value={produk.id}>
                 {produk.nama} ({produk.id})
               </option>
@@ -71,7 +111,6 @@ function TransactionForm() {
           </select>
         </div>
 
-        {/* --- DROPDOWN PAKET SERI (BARU) --- */}
         <div className="form-group">
           <label htmlFor="paketSeri">Pilih Paket Seri</label>
           <select
@@ -89,22 +128,18 @@ function TransactionForm() {
           </select>
         </div>
 
-        {/* Input 'Kode Sepatu' dan 'Size' sudah dihapus */}
-
-        {/* --- INPUT JUMLAH DUS (MODIFIKASI) --- */}
         <div className="form-group">
-          <label htmlFor="jumlahDus">Jumlah Dus Masuk</label> {/* <-- Label diubah */}
+          <label htmlFor="jumlahDus">Jumlah Dus Masuk</label>
           <input
             type="number"
             id="jumlahDus"
-            value={jumlahDus} // <-- State diubah
-            onChange={(e) => setJumlahDus(e.target.value)} // <-- State diubah
+            value={jumlahDus}
+            onChange={(e) => setJumlahDus(e.target.value)}
             min="1"
             required
           />
         </div>
 
-        {/* --- INPUT SUPPLIER (TETAP SAMA) --- */}
         <div className="form-group">
           <label htmlFor="supplier">Supplier</label>
           <input

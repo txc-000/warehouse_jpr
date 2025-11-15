@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import React from 'react';
 import './App.css';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -6,8 +8,12 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage.jsx';
 import MainLayout from './components/MainLayout.jsx';
 
-// <-- TAMBAHKAN SEMUA INI (Ini yang menyebabkan error)
-import Dashboard from './pages/Dashboard.jsx';
+// Import semua dashboard & halaman
+import DashboardHomePage from './pages/DashboardHomePage.jsx';
+import DashboardAdminMasuk from './pages/Dashboard.jsx'; 
+import DashboardPemilik from './pages/PemilikDashboard.jsx'; 
+import DashboardAdminKeluar from './pages/AdminKeluarDashboard.jsx'; 
+
 import SepatuKeluar from './pages/SepatuKeluar.jsx';
 import EditTransaksiPage from './pages/EditTransaksiPage.jsx';
 import SepatuMasterPage from './pages/SepatuMasterPage.jsx';
@@ -16,7 +22,8 @@ import VerifikasiStokPage from './pages/VerifikasiStokPage.jsx';
 import LaporanStokPage from './pages/LaporanStokPage.jsx';
 import KelolaUserPage from './pages/KelolaUserPage.jsx';
 import PaketSeriPage from './pages/PaketSeriPage.jsx';
-// <-- SAMPAI SINI -->
+import HistoryPage from './pages/HistoryPage.jsx';
+import TransaksiMasukForm from './components/TransactionForm.jsx';
 
 function App() {
   return (
@@ -26,18 +33,30 @@ function App() {
 
       {/* Rute untuk semua halaman aplikasi utama */}
       <Route path="/" element={<MainLayout />}>
-        {/* Ini akan me-redirect '/' ke '/sepatu-masuk' */}
-        <Route index element={<Navigate to="/sepatu-masuk" replace />} />
+        
+        {/* 'index' (halaman '/') memanggil 'DashboardHomePage' yang cerdas */}
+        <Route index element={<DashboardHomePage />} />
 
-        <Route path="sepatu-masuk" element={<Dashboard />} />
+        {/* Rute Dashboard (sesuai link di sidebar) */}
+        <Route path="dashboard-pemilik" element={<DashboardPemilik />} />
+        <Route path="dashboard-admin-masuk" element={<DashboardAdminMasuk />} />
+        <Route path="dashboard-admin-keluar" element={<DashboardAdminKeluar />} />
+
+        {/* Rute Halaman Lainnya (PASTIKAN SEMUA BENAR) */}
+        <Route path="sepatu-masuk" element={<TransaksiMasukForm />} /> 
         <Route path="sepatu-keluar" element={<SepatuKeluar />} />
         <Route path="edit-transaksi" element={<EditTransaksiPage />} />
         <Route path="data-sepatu" element={<SepatuMasterPage />} />
         <Route path="data-size" element={<DataMasterSizePage />} />
         <Route path="verifikasi-stok" element={<VerifikasiStokPage />} />
-        <Route path="laporan-stok" element={<LaporanStokPage />} />
+        
+        {/* INI YANG PENTING UNTUK MEMPERBAIKI BUG ANDA */}
+        <Route path="laporan-stok" element={<LaporanStokPage />} /> 
+        
         <Route path="kelola-user" element={<KelolaUserPage />} />
-        <Route path="/paket-seri" element={<PaketSeriPage />} />
+        <Route path="paket-seri" element={<PaketSeriPage />} />
+        <Route path="history" element={<HistoryPage />} />
+
       </Route>
 
       {/* Jika ada rute yang tidak cocok, kembali ke login */}
