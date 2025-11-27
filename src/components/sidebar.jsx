@@ -12,15 +12,28 @@ const NavItem = ({ title, to }) => (
   </NavLink>
 );
 
-// Komponen NavSection
-const NavSection = ({ title, items }) => (
-  <div className="nav-section">
-    <h3>{title}</h3>
-    {items.map((item) => (
-      <NavItem key={item.title} title={item.title} to={item.to} />
-    ))}
-  </div>
-);
+// Komponen NavSection (Mendukung fitur lipat/collapsible)
+const NavSection = ({ title, items, collapsible = false }) => {
+  if (collapsible) {
+    return (
+      <details className="nav-details">
+        <summary className="nav-summary">{title}</summary>
+        {items.map((item) => (
+          <NavItem key={item.title} title={item.title} to={item.to} />
+        ))}
+      </details>
+    );
+  }
+
+  return (
+    <div className="nav-section">
+      <h3>{title}</h3>
+      {items.map((item) => (
+        <NavItem key={item.title} title={item.title} to={item.to} />
+      ))}
+    </div>
+  );
+};
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -34,11 +47,11 @@ function Sidebar() {
     navigate('/login');
   };
   
-  // --- DAFTAR MENU DIPERBARUI ---
+  // --- DAFTAR MENU ---
 
   const adminMasukItems = [
     { title: 'Dashboard', to: '/dashboard-admin-masuk' },
-    { title: 'Info Stok & Harga', to: '/info-stok' }, // <-- MENU BARU
+    { title: 'Info Stok & Harga', to: '/info-stok' },
     { title: 'Pengelolaan Data Sepatu Master', to: '/data-sepatu' },
     { title: 'Pengelolaan Data Master Size', to: '/data-size' },
     { title: 'Pengelolaan Paket Seri', to: '/paket-seri' },
@@ -48,13 +61,18 @@ function Sidebar() {
 
   const adminKeluarItems = [
     { title: 'Dashboard', to: '/dashboard-admin-keluar' },
-    { title: 'Info Stok & Harga', to: '/info-stok' }, // <-- MENU BARU
+    { title: 'Info Stok & Harga', to: '/info-stok' },
     { title: 'Transaksi Sepatu Keluar', to: '/sepatu-keluar' },
   ];
 
+  // --- MENU PEMILIK LENGKAP NAMUN TETAP RAPI ---
   const pemilikItems = [
     { title: 'Dashboard', to: '/dashboard-pemilik' },
-    { title: 'Info Stok & Harga', to: '/info-stok' }, // <-- MENU BARU
+    
+    // Menu Penting yang Anda Minta:
+    { title: 'Atur Harga Barang', to: '/atur-harga' }, 
+    { title: 'Info Stok & Harga', to: '/info-stok' },
+    
     { title: 'Verifikasi Stok Barang', to: '/verifikasi-stok' },
     { title: 'Mencetak Laporan Stok', to: '/laporan-stok' },
     { title: 'History Transaksi', to: '/history' }, 
@@ -67,17 +85,30 @@ function Sidebar() {
       <h2>Manajemen Gudang</h2>
       
       <div className="sidebar-menu-wrapper">
-        {(userRole === 'admin_masuk' || userRole === 'pemilik') && (
-          <NavSection title="ADMIN BARANG MASUK" items={adminMasukItems} />
-        )}
         
-        {(userRole === 'admin_keluar' || userRole === 'pemilik') && (
-          <NavSection title="ADMIN BARANG KELUAR" items={adminKeluarItems} />
-        )}
-        
+        {/* 1. MENU PEMILIK (Selalu Terbuka & Lengkap) */}
         {userRole === 'pemilik' && (
-          <NavSection title="PEMILIK" items={pemilikItems} />
+          <NavSection title="MENU PEMILIK" items={pemilikItems} />
         )}
+
+        {/* 2. MENU ADMIN MASUK (Dilipat jika Pemilik agar Simple) */}
+        {(userRole === 'admin_masuk' || userRole === 'pemilik') && (
+          <NavSection 
+            title="ADMIN BARANG MASUK" 
+            items={adminMasukItems} 
+            collapsible={userRole === 'pemilik'} 
+          />
+        )}
+        
+        {/* 3. MENU ADMIN KELUAR (Dilipat jika Pemilik agar Simple) */}
+        {(userRole === 'admin_keluar' || userRole === 'pemilik') && (
+          <NavSection 
+            title="ADMIN BARANG KELUAR" 
+            items={adminKeluarItems} 
+            collapsible={userRole === 'pemilik'} 
+          />
+        )}
+        
       </div> 
       
       <a href="#" className="logout-link" onClick={handleLogout}>

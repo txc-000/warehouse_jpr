@@ -25,6 +25,7 @@ import PaketSeriPage from './pages/PaketSeriPage.jsx';
 import HistoryPage from './pages/HistoryPage.jsx';
 import TransaksiMasukForm from './components/TransactionForm.jsx';
 import StokBarangPage from './pages/StokBarangPage.jsx'; // Import Halaman Display
+import AturHargaPage from './pages/AturHargaPage.jsx';
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
 
         {/* --- (PENTING) RUTE BARU UNTUK HALAMAN DISPLAY STOK & HARGA --- */}
         <Route path="info-stok" element={<StokBarangPage />} />
+        <Route path="atur-harga" element={<AturHargaPage />} />
 
       </Route>
 

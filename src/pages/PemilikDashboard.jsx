@@ -126,25 +126,35 @@ function PemilikDashboard() {
       {/* --- Bagian 2: Shortcut --- */}
       <h3 className="dashboard-subtitle">Pintasan Anda</h3>
       <div className="shortcut-grid">
+        
+        {/* Tombol Khusus Edit Harga */}
+        <Link to="/atur-harga" className="shortcut-card" style={{borderLeft: '4px solid #28a745'}}>
+          <h4>💰 Atur Harga Barang</h4>
+          <p>Update harga display dan data master sepatu.</p>
+        </Link>
+
         <Link to="/verifikasi-stok" className="shortcut-card">
           <h4>📊 Verifikasi Stok</h4>
           <p>Lakukan stock opname (penyesuaian).</p>
         </Link>
+        
         <Link to="/laporan-stok" className="shortcut-card">
           <h4>📄 Cetak Laporan Stok</h4>
-          <p>Lihat & cetak stok akhir.</p>
+          <p>Lihat & cetak laporan analisis.</p>
         </Link>
+        
         <Link to="/history" className="shortcut-card">
           <h4>🕒 History Transaksi</h4>
           <p>Lihat riwayat barang masuk dan keluar.</p>
         </Link>
+        
         <Link to="/kelola-user" className="shortcut-card">
           <h4>👤 Kelola Akses User</h4>
           <p>Tambah atau edit hak akses user.</p>
         </Link>
       </div>
 
-      {/* --- Bagian 3: ANALISIS TREN BISNIS (BARU) --- */}
+      {/* --- Bagian 3: ANALISIS TREN BISNIS --- */}
       <h3 className="dashboard-subtitle">Analisis Tren Bisnis (Harga & Pergerakan)</h3>
       <div className="tabel-container-full">
         <table>

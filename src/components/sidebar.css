@@ -78,3 +78,107 @@
   background-color: #ccc;
   border-radius: 3px;
 }
+
+/* === STYLE MENU LIPAT (ACCORDION) === */
+
+/* Container menu lipat */
+.nav-details {
+  margin-top: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Judul menu lipat (Summary) */
+.nav-summary {
+  padding: 10px 5px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  list-style: none; /* Hilangkan panah default browser */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+/* Hilangkan marker default di beberapa browser */
+.nav-summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-summary:hover {
+  color: #333;
+}
+
+/* Tanda Plus (+) dan Minus (-) */
+.nav-summary::after {
+  content: '+'; 
+  font-size: 14px;
+  font-weight: normal;
+}
+
+/* Saat menu terbuka, ubah jadi Minus */
+details[open] .nav-summary::after {
+  content: '-';
+}
+
+/* Animasi halus saat dibuka */
+details[open] .nav-summary {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* ... (kode CSS yang sudah ada biarkan saja) ... */
+
+/* === STYLE MENU LIPAT (ACCORDION) === */
+
+/* Container menu lipat */
+.nav-details {
+  margin-top: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Judul menu lipat (Summary) */
+.nav-summary {
+  padding: 10px 5px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  list-style: none; /* Hilangkan panah default browser */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+/* Hilangkan marker default di beberapa browser */
+.nav-summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-summary:hover {
+  color: #333;
+}
+
+/* Tanda Plus (+) dan Minus (-) */
+.nav-summary::after {
+  content: '+'; 
+  font-size: 14px;
+  font-weight: normal;
+}
+
+/* Saat menu terbuka, ubah jadi Minus */
+details[open] .nav-summary::after {
+  content: '-';
+}
+
+/* Animasi halus saat dibuka */
+details[open] .nav-summary {
+  margin-bottom: 5px;
+  color: #333;
+}
