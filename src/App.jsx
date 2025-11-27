@@ -24,6 +24,7 @@ import KelolaUserPage from './pages/KelolaUserPage.jsx';
 import PaketSeriPage from './pages/PaketSeriPage.jsx';
 import HistoryPage from './pages/HistoryPage.jsx';
 import TransaksiMasukForm from './components/TransactionForm.jsx';
+import StokBarangPage from './pages/StokBarangPage.jsx'; // Import Halaman Display
 
 function App() {
   return (
@@ -37,25 +38,26 @@ function App() {
         {/* 'index' (halaman '/') memanggil 'DashboardHomePage' yang cerdas */}
         <Route index element={<DashboardHomePage />} />
 
-        {/* Rute Dashboard (sesuai link di sidebar) */}
+        {/* Rute Dashboard */}
         <Route path="dashboard-pemilik" element={<DashboardPemilik />} />
         <Route path="dashboard-admin-masuk" element={<DashboardAdminMasuk />} />
         <Route path="dashboard-admin-keluar" element={<DashboardAdminKeluar />} />
 
-        {/* Rute Halaman Lainnya (PASTIKAN SEMUA BENAR) */}
+        {/* Rute Halaman Lainnya */}
         <Route path="sepatu-masuk" element={<TransaksiMasukForm />} /> 
         <Route path="sepatu-keluar" element={<SepatuKeluar />} />
         <Route path="edit-transaksi" element={<EditTransaksiPage />} />
         <Route path="data-sepatu" element={<SepatuMasterPage />} />
         <Route path="data-size" element={<DataMasterSizePage />} />
         <Route path="verifikasi-stok" element={<VerifikasiStokPage />} />
-        
-        {/* INI YANG PENTING UNTUK MEMPERBAIKI BUG ANDA */}
         <Route path="laporan-stok" element={<LaporanStokPage />} /> 
         
         <Route path="kelola-user" element={<KelolaUserPage />} />
         <Route path="paket-seri" element={<PaketSeriPage />} />
         <Route path="history" element={<HistoryPage />} />
+
+        {/* --- (PENTING) RUTE BARU UNTUK HALAMAN DISPLAY STOK & HARGA --- */}
+        <Route path="info-stok" element={<StokBarangPage />} />
 
       </Route>
 

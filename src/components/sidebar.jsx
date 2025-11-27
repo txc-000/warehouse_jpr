@@ -2,7 +2,7 @@ import React from 'react';
 import './Sidebar.css';
 import { NavLink, useNavigate } from 'react-router-dom'; 
 
-// Komponen NavItem (sudah benar)
+// Komponen NavItem
 const NavItem = ({ title, to }) => (
   <NavLink
     to={to}
@@ -12,7 +12,7 @@ const NavItem = ({ title, to }) => (
   </NavLink>
 );
 
-// Komponen NavSection (sudah benar)
+// Komponen NavSection
 const NavSection = ({ title, items }) => (
   <div className="nav-section">
     <h3>{title}</h3>
@@ -25,18 +25,20 @@ const NavSection = ({ title, items }) => (
 function Sidebar() {
   const navigate = useNavigate();
   
-  // --- INI ADALAH SAKLAR ROLE ANDA ---
-  const userRole = 'pemilik'; // <-- Atur role di sini
-  // ------------------------------------
+  // --- SAKLAR ROLE ---
+  const userRole = 'pemilik'; 
+  // -------------------
 
   const handleLogout = (e) => {
     e.preventDefault();
     navigate('/login');
   };
   
-  // Path dashboard sudah unik (ini sudah benar)
+  // --- DAFTAR MENU DIPERBARUI ---
+
   const adminMasukItems = [
-    { title: 'Dashboard', to: '/dashboard-admin-masuk' }, 
+    { title: 'Dashboard', to: '/dashboard-admin-masuk' },
+    { title: 'Info Stok & Harga', to: '/info-stok' }, // <-- MENU BARU
     { title: 'Pengelolaan Data Sepatu Master', to: '/data-sepatu' },
     { title: 'Pengelolaan Data Master Size', to: '/data-size' },
     { title: 'Pengelolaan Paket Seri', to: '/paket-seri' },
@@ -45,15 +47,16 @@ function Sidebar() {
   ];
 
   const adminKeluarItems = [
-    { title: 'Dashboard', to: '/dashboard-admin-keluar' }, 
+    { title: 'Dashboard', to: '/dashboard-admin-keluar' },
+    { title: 'Info Stok & Harga', to: '/info-stok' }, // <-- MENU BARU
     { title: 'Transaksi Sepatu Keluar', to: '/sepatu-keluar' },
   ];
 
   const pemilikItems = [
-    { title: 'Dashboard', to: '/dashboard-pemilik' }, 
+    { title: 'Dashboard', to: '/dashboard-pemilik' },
+    { title: 'Info Stok & Harga', to: '/info-stok' }, // <-- MENU BARU
     { title: 'Verifikasi Stok Barang', to: '/verifikasi-stok' },
     { title: 'Mencetak Laporan Stok', to: '/laporan-stok' },
-    // --- (INI PERUBAHANNYA) ---
     { title: 'History Transaksi', to: '/history' }, 
     { title: 'Kelola Akses User', to: '/kelola-user' },
   ];

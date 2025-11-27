@@ -1,53 +1,101 @@
+/* TransactionForm.css - Versi Modern */
+
+/* 1. CONTAINER FORMULIR: Dibuat seperti kartu yang elegan */
 .form-container {
+  max-width: 600px; /* Batasi lebar agar tidak terlalu lebar di layar besar */
+  margin: 0 auto; /* Posisi tengah (Center) */
   background-color: #ffffff;
-  border-radius: 8px;
-  padding: 25px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  max-width: 600px; /* Membatasi lebar form */
+  padding: 40px;
+  border-radius: 16px; /* Sudut lebih membulat */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); /* Bayangan lembut dan luas */
+  border: 1px solid #f0f0f0; /* Border sangat tipis */
 }
 
+/* 2. JUDUL FORMULIR */
 .form-container h3 {
-  font-size: 1.25rem;
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #333;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937; /* Warna abu-abu gelap */
+  margin-bottom: 30px;
+  text-align: center; /* Judul di tengah */
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb; /* Garis pemisah halus di bawah judul */
 }
 
+/* 3. GROUP FORM (Label + Input) */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px; /* Jarak antar input lebih lega */
 }
 
+/* 4. LABEL */
 .form-group label {
   display: block;
+  font-size: 14px;
   font-weight: 600;
+  color: #4b5563; /* Abu-abu medium */
   margin-bottom: 8px;
-  color: #444;
+  letter-spacing: 0.3px;
 }
 
-.form-group input {
+/* 5. INPUT & SELECT (Dropdown) */
+.form-group input,
+.form-group select {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.95rem;
+  padding: 12px 16px; /* Area ketik lebih luas */
+  font-size: 15px;
+  color: #111827;
+  background-color: #fff;
+  border: 1px solid #d1d5db; /* Border abu-abu standar */
+  border-radius: 8px; /* Sudut input membulat */
+  transition: all 0.2s ease-in-out; /* Animasi halus saat diklik */
+  box-sizing: border-box;
+  appearance: none; /* Menghilangkan style bawaan browser yang jelek */
 }
 
+/* Tambahkan ikon panah kustom untuk dropdown (Opsional tapi bagus) */
+.form-group select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Efek saat Input/Select diklik (Fokus) */
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3b82f6; /* Berubah jadi biru */
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); /* Efek 'glow' biru muda */
+}
+
+/* Placeholder */
 .form-group input::placeholder {
-  color: #aaa;
+  color: #9ca3af;
 }
 
+/* 6. TOMBOL SUBMIT */
 .submit-button {
-  background-color: #007bff;
+  width: 100%; /* Tombol lebar penuh */
+  background-color: #007bff; /* Warna biru utama */
   color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 14px 20px;
+  font-size: 16px;
   font-weight: 600;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2); /* Bayangan biru di bawah tombol */
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Warna lebih gelap saat hover */
+  transform: translateY(-2px); /* Tombol naik sedikit saat di-hover */
+  box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3); /* Bayangan makin tebal */
+}
+
+.submit-button:active {
+  transform: translateY(0); /* Tombol turun saat ditekan */
 }

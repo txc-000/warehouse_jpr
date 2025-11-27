@@ -1,72 +1,80 @@
 import React, { useState } from 'react';
-import SepatuMasterModal from '../components/SepatuMasterModal.jsx'; // Import modal
-import './EditTransaksiPage.css'; // Pakai ulang CSS tabel dari halaman edit
+import SepatuMasterModal from '../components/SepatuMasterModal.jsx'; 
+import './EditTransaksiPage.css'; 
 
-// Data dummy (nantinya dari API)
+// --- SAKLAR ROLE (UNTUK SIMULASI) ---
+// Ganti ke 'admin_masuk' untuk mengetes input terkunci
+// Ganti ke 'pemilik' untuk mengetes input terbuka
+const currentUserRole = 'pemilik'; 
+// ------------------------------------
+
+// Data Dummy
 const initialData = [
-  { id: 1, kodeSepatu: 'AF1-001', namaSepatu: 'Air Force 1 \'07', brand: 'Nike' },
-  { id: 2, kodeSepatu: 'ADS-SMBA', namaSepatu: 'Samba OG', brand: 'Adidas' },
-  { id: 3, kodeSepatu: 'NB-550', namaSepatu: '550', brand: 'New Balance' },
+  { id: 1, kodeSepatu: 'AF1-001', namaSepatu: 'Air Force 1 \'07', brand: 'Nike', harga: 1500000 },
+  { id: 2, kodeSepatu: 'ADS-SMBA', namaSepatu: 'Samba OG', brand: 'Adidas', harga: 1850000 },
+  { id: 3, kodeSepatu: 'NB-550', namaSepatu: '550', brand: 'New Balance', harga: 1799000 },
 ];
 
 function SepatuMasterPage() {
-  const [daftarSepatu, setDaftarSepatu] = useState(initialData);
+  const [sepatuList, setSepatuList] = useState(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentSepatu, setCurrentSepatu] = useState(null); // Data untuk edit
+  const [selectedSepatu, setSelectedSepatu] = useState(null);
 
-  // Fungsi untuk BUKA modal (mode TAMBAH)
+  const formatRupiah = (angka) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0,
+    }).format(angka);
+  };
+
   const handleTambah = () => {
-    setCurrentSepatu(null); // Kosongkan data
+    setSelectedSepatu(null);
     setIsModalOpen(true);
   };
 
-  // Fungsi untuk BUKA modal (mode EDIT)
   const handleEdit = (sepatu) => {
-    setCurrentSepatu(sepatu); // Isi data
+    setSelectedSepatu(sepatu);
     setIsModalOpen(true);
   };
 
-  // Fungsi untuk TUTUP modal
-  const handleClose = () => {
-    setIsModalOpen(false);
-    setCurrentSepatu(null);
-  };
-
-  // Fungsi untuk SIMPAN (bisa tambah/edit)
-  const handleSave = (data) => {
-    if (currentSepatu) {
-      // Logic EDIT
-      setDaftarSepatu(prev =>
-        prev.map(item => (item.id === currentSepatu.id ? { ...data, id: item.id } : item))
-      );
-    } else {
-      // Logic TAMBAH
-      const newId = daftarSepatu.length + 1; // (dummy ID)
-      setDaftarSepatu(prev => [...prev, { ...data, id: newId }]);
-    }
-    handleClose(); // Tutup modal
-  };
-
-  // Fungsi untuk HAPUS
   const handleDelete = (id) => {
-    if (window.confirm('Yakin ingin menghapus sepatu master ini?')) {
-      setDaftarSepatu(prev => prev.filter(item => item.id !== id));
+    // Hanya pemilik yang boleh menghapus data master (Opsional, tambahan keamanan)
+    if (currentUserRole !== 'pemilik') {
+      alert('Akses Ditolak: Hanya Pemilik yang dapat menghapus data master.');
+      return;
     }
+    if (window.confirm('Yakin hapus data ini?')) {
+      setSepatuList(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedSepatu(null);
+  };
+
+  const handleSaveData = (formData) => {
+    if (selectedSepatu) {
+      setSepatuList(prev => prev.map(item => 
+        item.id === selectedSepatu.id ? { ...formData, id: item.id } : item
+      ));
+    } else {
+      const newId = sepatuList.length + 1;
+      setSepatuList(prev => [...prev, { ...formData, id: newId }]);
+    }
+    handleCloseModal();
   };
 
   return (
     <div className="dashboard-content">
       <header className="dashboard-header">
         <h1>Pengelolaan Data Sepatu Master</h1>
-        <p>Kelola data induk untuk semua jenis sepatu.</p>
+        <p>Kelola data induk sepatu. {currentUserRole === 'pemilik' ? <strong>(Mode Pemilik: Full Akses)</strong> : '(Mode Admin: Harga View-Only)'}</p>
       </header>
 
-      {/* Tombol Tambah di atas tabel */}
-      <button className="button-tambah" onClick={handleTambah}>
+      <button className="button-cetak" onClick={handleTambah} style={{ marginBottom: '20px' }}>
         + Tambah Sepatu Master
       </button>
 
-      {/* Kita pakai ulang class CSS dari halaman edit */}
       <div className="tabel-container-full">
         <table>
           <thead>
@@ -75,16 +83,20 @@ function SepatuMasterPage() {
               <th>Kode Sepatu (SKU)</th>
               <th>Nama Sepatu</th>
               <th>Brand</th>
+              <th>Harga (Display)</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            {daftarSepatu.map(item => (
+            {sepatuList.map(item => (
               <tr key={item.id}>
                 <td>{item.id}</td>
                 <td>{item.kodeSepatu}</td>
                 <td>{item.namaSepatu}</td>
                 <td>{item.brand}</td>
+                <td style={{ fontWeight: 'bold', color: '#28a745' }}>
+                  {formatRupiah(item.harga)}
+                </td>
                 <td>
                   <button className="edit-button" onClick={() => handleEdit(item)}>
                     Edit
@@ -99,12 +111,12 @@ function SepatuMasterPage() {
         </table>
       </div>
 
-      {/* Tampilkan modal jika isModalOpen bernilai true */}
       {isModalOpen && (
-        <SepatuMasterModal
-          initialData={currentSepatu}
-          onClose={handleClose}
-          onSave={handleSave}
+        <SepatuMasterModal 
+          onClose={handleCloseModal}
+          onSave={handleSaveData}
+          initialData={selectedSepatu}
+          userRole={currentUserRole} // <-- KITA KIRIM ROLE KE MODAL
         />
       )}
     </div>

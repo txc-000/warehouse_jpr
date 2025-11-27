@@ -1,120 +1,145 @@
-/* === TAMBAHKAN KODE DI BAWAH INI DI BAGIAN BAWAH FILE Dashboard.css === */
+/* Dashboard.css - Versi Modern & Lebih Lega */
 
+/* 1. CONTAINER UTAMA: Memberi jarak agar tidak mepet */
+.dashboard-content {
+  padding: 40px 50px; /* Atas-Bawah 40px, Kiri-Kanan 50px */
+  background-color: #f8f9fa; /* Latar belakang abu-abu sangat muda agar kartu terlihat jelas */
+  min-height: 100vh; /* Agar background mengisi layar penuh */
+}
+
+/* 2. HEADER: Typography yang lebih rapi */
+.dashboard-header {
+  margin-bottom: 40px;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.dashboard-header p {
+  font-size: 16px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* 3. SUBJUDUL (Pintasan Utama, dll) */
 .dashboard-subtitle {
   font-size: 20px;
   font-weight: 600;
-  margin-top: 32px;
-  margin-bottom: 16px;
+  color: #343a40;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
 }
 
-/* --- Grid Shortcut --- */
+/* 4. GRID PINTASAN: Mengatur tata letak kartu */
 .shortcut-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsif */
+  gap: 24px; /* Jarak antar kartu */
+  margin-bottom: 40px;
 }
 
+/* 5. KARTU PINTASAN: Desain modern */
 .shortcut-card {
-  display: block;
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #ffffff;
+  border: 1px solid #e9ecef; /* Border halus */
+  border-radius: 12px; /* Sudut membulat */
   padding: 24px;
-  text-decoration: none;
+  text-decoration: none; /* Hapus garis bawah link */
   color: inherit;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: all 0.3s ease; /* Animasi halus */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); /* Bayangan tipis */
+  height: 100%; /* Agar tinggi kartu seragam */
 }
 
+/* Efek saat mouse diarahkan ke kartu (Hover) */
 .shortcut-card:hover {
-  border-color: #007bff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-5px); /* Naik sedikit ke atas */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); /* Bayangan menebal */
+  border-color: #007bff; /* Border berubah biru */
 }
 
 .shortcut-card h4 {
   font-size: 18px;
   font-weight: 600;
-  color: #007bff; /* Biru */
-  margin: 0 0 8px 0;
+  color: #007bff; /* Judul biru */
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .shortcut-card p {
   font-size: 14px;
-  color: #6b7280;
+  color: #6c757d;
+  line-height: 1.5;
   margin: 0;
 }
 
-/* --- Grid KPI (Untuk Dashboard Pemilik Nanti) --- */
+/* 6. GRID KPI (Untuk Dashboard Pemilik) */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
 }
 
 .kpi-card {
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-left: 5px solid #007bff; /* Aksen warna di kiri */
 }
 
 .kpi-card h4 {
   font-size: 14px;
   font-weight: 600;
-  color: #6b7280; /* Abu-abu */
-  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  margin: 0 0 10px 0;
 }
 
 .kpi-card p {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
-  color: #111827; /* Hitam */
-  margin: 0 0 8px 0;
+  color: #212529;
+  margin: 0;
 }
 
 .kpi-card span {
   font-size: 13px;
-  color: #6b7280;
+  color: #adb5bd;
+  margin-top: 5px;
+  display: block;
 }
 
-/* Warna KPI */
-.kpi-card.warning p { color: #d9534f; }
+/* Variasi Warna KPI */
+.kpi-card.warning { border-left-color: #ffc107; }
+.kpi-card.warning p { color: #d39e00; }
+
+.kpi-card.green { border-left-color: #28a745; }
 .kpi-card.green p { color: #28a745; }
-.kpi-card.red p { color: #d9534f; }
 
-/* Style dari VerifikasiStok.css (jika diperlukan) */
-.row-warning {
-  background-color: #fff3cd; /* Kuning muda */
-}
+.kpi-card.red { border-left-color: #dc3545; }
+.kpi-card.red p { color: #dc3545; }
 
-/* === TAMBAHKAN INI DI BAWAH FILE Dashboard.css === */
-
-.header-nav-links {
-  margin-top: 20px;
-  border-bottom: 1px solid #ddd;
-}
-
-/* Style untuk tombol tab */
-.header-nav-links .nav-link {
-  /* Hapus style default button */
-  background: none;
-  border: none;
-  font-family: inherit;
-  cursor: pointer;
-  
-  /* Style tab */
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-right: 25px;
-  padding-bottom: 15px;
-  border-bottom: 3px solid transparent;
-  color: #007bff; /* Warna biru */
-}
-
-/* Style untuk tab yang aktif atau di-hover */
-.header-nav-links .nav-link.active,
-.header-nav-links .nav-link:hover {
-  color: #0056b3; /* Biru lebih gelap */
-  border-bottom: 3px solid #007bff;
+/* 7. PERBAIKAN CONTAINER TABEL AGAR TIDAK MEPET */
+.tabel-container-full {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 0; /* Padding di-handle oleh sel tabel */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Agar sudut membulat tabel terlihat */
 }

@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import './EditModal.css'; // Pakai ulang CSS modal
-import './TransactionForm.css'; // Pakai ulang CSS form
+import './EditModal.css'; 
+import './TransactionForm.css'; 
 
-// Modal ini bisa untuk 'add' (tambah) atau 'edit'
-function SepatuMasterModal({ onClose, onSave, initialData }) {
+// Terima prop 'userRole'
+function SepatuMasterModal({ onClose, onSave, initialData, userRole }) {
   
-  // Tentukan state awal. Kosong jika 'add', terisi jika 'edit'
-  const [formData, setFormData] = useState(
-    initialData || {
-      kodeSepatu: '',
-      namaSepatu: '',
-      brand: '',
-    }
-  );
+  const [formData, setFormData] = useState({
+    kodeSepatu: '',
+    namaSepatu: '',
+    brand: '',
+    harga: 0, // Default 0 jika admin yang input
+  });
 
-  const isEditMode = !!initialData; // Cek apakah ini mode edit
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
+  const isEditMode = !!initialData;
+  const isPemilik = userRole === 'pemilik'; // Cek apakah Pemilik
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,7 +28,10 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData); // Kirim data baru ke parent
+    onSave({
+      ...formData,
+      harga: Number(formData.harga)
+    }); 
   };
 
   return (
@@ -66,6 +74,34 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
               onChange={handleChange}
               required
             />
+          </div>
+
+          {/* --- LOGIKA PENGUNCIAN HARGA --- */}
+          <div className="form-group">
+            <label htmlFor="harga">
+              Harga Referensi {isPemilik ? '' : '(Terkunci)'}
+            </label>
+            
+            <input
+              type="number"
+              id="harga"
+              name="harga"
+              value={formData.harga}
+              onChange={handleChange}
+              min="0"
+              // KUNCI INPUT JIKA BUKAN PEMILIK
+              disabled={!isPemilik} 
+              // Beri warna abu-abu jika terkunci agar jelas visualnya
+              style={!isPemilik ? { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' } : {}}
+              placeholder={isPemilik ? "Masukkan harga..." : "Menunggu input Pemilik"}
+            />
+            
+            {/* Pesan Penjelasan */}
+            <small style={{ color: isPemilik ? '#28a745' : '#d9534f', marginTop: '5px', display: 'block', fontWeight: '500' }}>
+              {isPemilik 
+                ? '✓ Anda Login sebagai Pemilik. Silakan input harga.' 
+                : '🔒 Hanya Pemilik yang dapat mengubah/menyetujui harga.'}
+            </small>
           </div>
 
           <div className="modal-actions">
