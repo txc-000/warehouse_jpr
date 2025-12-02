@@ -1,184 +1,188 @@
+/* --- LAYOUT UTAMA --- */
 .sidebar {
-  width: 280px;
+  width: 260px; /* Sedikit lebih ramping agar elegan */
   height: 100vh;
   background-color: #ffffff;
-  padding: 20px;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
+  font-family: 'Inter', sans-serif;
 }
 
-.sidebar h2 {
-  font-size: 1.5rem;
-  color: #333;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
-  /* (PENTING) Pastikan H2 tidak 'shrink' */
-  flex-shrink: 0; 
+/* --- HEADER --- */
+.sidebar-header {
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #f8fafc; /* Garis sangat halus */
+  flex-shrink: 0;
 }
 
-.nav-section {
-  margin-top: 20px;
+.logo-box {
+  width: 36px;
+  height: 36px;
+  /* Gradient Biru Modern */
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
 }
 
-.nav-section h3 {
-  font-size: 0.75rem;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-}
-
-.nav-item {
-  display: block;
-  text-decoration: none;
-  color: #555;
-  padding: 12px 15px;
-  border-radius: 6px;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.nav-item:hover {
-  background-color: #f4f4f4;
-}
-
-.nav-item.active {
-  background-color: #f0f5ff;
-  color: #0052cc;
+.brand-text h3 {
+  margin: 0;
+  font-size: 15px;
   font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.3px;
 }
 
-.logout-link {
-  margin-top: auto; /* Mendorong ke bawah */
-  color: #d9534f;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 10px 0;
-  /* (PENTING) Pastikan logout tidak 'shrink' */
-  flex-shrink: 0; 
-}
-
-/* === INI ADALAH KODE BARU UNTUK MEMPERBAIKI SCROLL === */
-
+/* --- MENU WRAPPER --- */
 .sidebar-menu-wrapper {
-  flex-grow: 1; /* (PENTING) Bikin div ini mengisi sisa ruang */
-  overflow-y: auto; /* (PENTING) Tambahkan scrollbar jika menu terlalu panjang */
-  
-  /* (Opsional) Beri jarak sedikit di bawah menu terakhir */
-  padding-bottom: 20px; 
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px; /* Padding atas bawah lega */
 }
 
-/* (Opsional) Style scrollbar agar terlihat lebih bagus */
+/* Scrollbar halus */
 .sidebar-menu-wrapper::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 .sidebar-menu-wrapper::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 3px;
+  background-color: #e2e8f0;
+  border-radius: 10px;
 }
 
-/* === STYLE MENU LIPAT (ACCORDION) === */
-
-/* Container menu lipat */
-.nav-details {
-  margin-top: 15px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-/* Judul menu lipat (Summary) */
-.nav-summary {
-  padding: 10px 5px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #888;
+/* Label Group */
+.menu-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8; /* Abu-abu soft */
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  list-style: none; /* Hilangkan panah default browser */
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-left: 12px;
+  margin-top: 16px;
+}
+
+/* --- ITEM NAVIGASI (Clean - Tanpa Icon) --- */
+.nav-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  transition: color 0.2s;
-}
-
-/* Hilangkan marker default di beberapa browser */
-.nav-summary::-webkit-details-marker {
-  display: none;
-}
-
-.nav-summary:hover {
-  color: #333;
-}
-
-/* Tanda Plus (+) dan Minus (-) */
-.nav-summary::after {
-  content: '+'; 
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  text-decoration: none;
+  color: #64748b;
   font-size: 14px;
-  font-weight: normal;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
-/* Saat menu terbuka, ubah jadi Minus */
-details[open] .nav-summary::after {
-  content: '-';
+/* Hover Effect */
+.nav-item:hover {
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
-/* Animasi halus saat dibuka */
-details[open] .nav-summary {
-  margin-bottom: 5px;
-  color: #333;
+/* Active State (Gaya Minimalis) */
+.nav-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
 }
 
-/* ... (kode CSS yang sudah ada biarkan saja) ... */
-
-/* === STYLE MENU LIPAT (ACCORDION) === */
-
-/* Container menu lipat */
-.nav-details {
-  margin-top: 15px;
-  border-bottom: 1px solid #f0f0f0;
+/* --- DROPDOWN MODERN --- */
+.dropdown-container {
+  margin-bottom: 4px;
 }
 
-/* Judul menu lipat (Summary) */
-.nav-summary {
-  padding: 10px 5px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  list-style: none; /* Hilangkan panah default browser */
+.dropdown-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  transition: color 0.2s;
-}
-
-/* Hilangkan marker default di beberapa browser */
-.nav-summary::-webkit-details-marker {
-  display: none;
-}
-
-.nav-summary:hover {
-  color: #333;
-}
-
-/* Tanda Plus (+) dan Minus (-) */
-.nav-summary::after {
-  content: '+'; 
+  justify-content: space-between;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: #64748b;
   font-size: 14px;
-  font-weight: normal;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s;
 }
 
-/* Saat menu terbuka, ubah jadi Minus */
-details[open] .nav-summary::after {
-  content: '-';
+.dropdown-header:hover {
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
-/* Animasi halus saat dibuka */
-details[open] .nav-summary {
-  margin-bottom: 5px;
-  color: #333;
+.dropdown-header.open {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* Animasi Chevron */
+.chevron {
+  transition: transform 0.2s ease;
+  color: #cbd5e1;
+}
+
+.chevron.rotate {
+  transform: rotate(180deg);
+  color: #64748b;
+}
+
+/* Konten Dropdown */
+.dropdown-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.dropdown-content.show {
+  max-height: 500px;
+}
+
+/* Sub-item di dalam dropdown */
+.dropdown-content .nav-item {
+  font-size: 13.5px;
+  padding: 8px 12px 8px 24px; /* Padding kiri lebih besar untuk indentasi */
+  color: #64748b;
+  margin-left: 0; 
+  border-radius: 6px;
+}
+
+.dropdown-content .nav-item:hover {
+  color: #1e293b;
+}
+
+.dropdown-content .nav-item.active {
+  color: #2563eb;
+  background-color: transparent; /* Sub-item aktif transparan tapi teks biru */
+}
+
+/* --- FOOTER LOGOUT --- */
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #f1f5f9; /* Border sangat halus */
+  background-color: #fff;
+  color: #ef4444; /* Merah */
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #fef2f2;
+  border-color: #fee2e2;
 }

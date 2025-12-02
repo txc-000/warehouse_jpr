@@ -4,11 +4,12 @@ import './TransactionForm.css';
 
 function SepatuMasterModal({ onClose, onSave, initialData }) {
   
-  // HANYA Data Fisik, TIDAK ADA HARGA
+  // State form
   const [formData, setFormData] = useState({
     kodeSepatu: '',
     namaSepatu: '',
     brand: '',
+    harga: 0, // Default 0, biar tidak error di database/state utama
   });
 
   useEffect(() => {
@@ -26,6 +27,9 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Kita kirim data apa adanya. 
+    // Jika data baru, harga otomatis 0. 
+    // Jika edit data lama, harga lama tetap terbawa (hidden) tidak hilang.
     onSave(formData); 
   };
 
@@ -33,6 +37,10 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
     <div className="modal-overlay">
       <div className="modal-content form-container">
         <h3>{isEditMode ? 'Edit' : 'Tambah'} Data Master Sepatu</h3>
+        <p style={{fontSize: '0.85rem', color: '#666', marginBottom: '20px'}}>
+          Masukkan data fisik sepatu. Harga diatur terpisah oleh Pemilik.
+        </p>
+        
         <form onSubmit={handleSubmit}>
           
           <div className="form-group">
@@ -43,7 +51,7 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
               name="kodeSepatu"
               value={formData.kodeSepatu}
               onChange={handleChange}
-              placeholder="Contoh: NK-AF1"
+              placeholder="Contoh: NK-AF1-001"
               required
             />
           </div>
@@ -56,6 +64,7 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
               name="namaSepatu"
               value={formData.namaSepatu}
               onChange={handleChange}
+              placeholder="Contoh: Air Force 1 '07"
               required
             />
           </div>
@@ -68,18 +77,19 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
               name="brand"
               value={formData.brand}
               onChange={handleChange}
+              placeholder="Contoh: Nike"
               required
             />
           </div>
 
-          {/* INPUT HARGA SUDAH DIHAPUS DARI SINI */}
+          {/* INPUT HARGA DIHAPUS TOTAL DARI SINI */}
 
           <div className="modal-actions">
             <button type="button" className="button-cancel" onClick={onClose}>
               Batal
             </button>
             <button type="submit" className="submit-button">
-              Simpan
+              Simpan Data Master
             </button>
           </div>
         </form>

@@ -5,9 +5,10 @@ import './TransactionForm.css'; // Pakai ulang CSS form
 function UserModal({ onClose, onSave, initialData }) {
   const [formData, setFormData] = useState(
     initialData || {
+      namaStaff: '', // Field baru untuk Nama Staff
       username: '',
-      password: '', // Di aplikasi nyata, jangan pernah tampilkan/edit password seperti ini
-      role: 'ADMIN BARANG MASUK', // Default role
+      password: '', 
+      role: 'ADMIN BARANG MASUK', 
     }
   );
 
@@ -29,6 +30,20 @@ function UserModal({ onClose, onSave, initialData }) {
         <h3>{isEditMode ? 'Edit' : 'Tambah'} User Baru</h3>
         <form onSubmit={handleSubmit}>
           
+          {/* --- INPUT BARU: NAMA STAFF --- */}
+          <div className="form-group">
+            <label htmlFor="namaStaff">Nama Staff</label>
+            <input
+              type="text"
+              id="namaStaff"
+              name="namaStaff"
+              value={formData.namaStaff || ''} // Fallback string kosong untuk menghindari error
+              onChange={handleChange}
+              required
+              placeholder="Contoh: Budi Santoso"
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
@@ -44,19 +59,21 @@ function UserModal({ onClose, onSave, initialData }) {
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
-              type="password"
+              /* Tips: Jika ingin password terlihat saat mengetik (agar mudah bagi Pemilik), 
+                 Anda bisa mengganti type="password" menjadi type="text" di bawah ini.
+              */
+              type="text" 
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder={isEditMode ? "Isi untuk mengubah" : ""}
+              placeholder={isEditMode ? "Isi password" : "Password user"}
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="role">Role</label>
-            {/* Ganti ke input biasa jika ingin lebih simpel */}
             <select
               id="role"
               name="role"

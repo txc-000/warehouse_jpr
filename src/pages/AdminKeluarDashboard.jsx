@@ -3,12 +3,35 @@ import { Link } from 'react-router-dom';
 import './Dashboard.css'; // Memakai CSS yang sudah ada
 import './EditTransaksiPage.css'; // Memakai CSS tabel
 
-// --- SIMULASI 3 TRANSAKSI KELUAR TERAKHIR ---
-// (Diambil dari data dummy HistoryKeluarPage.jsx)
+// --- SIMULASI TRANSAKSI KELUAR TERAKHIR (DENGAN ID & PAKET) ---
 const transaksiTerakhir = [
-  { id: 5, merk: 'Adidas', namaProduk: 'Samba OG', jumlahDus: 10, tujuan: 'Mitra Sport' },
-  { id: 4, merk: 'Nike', namaProduk: 'Air Force 1 \'07', jumlahDus: 5, tujuan: 'Toko Jaya Abadi' },
-  { id: 3, merk: 'New Balance', namaProduk: '550', jumlahDus: 8, tujuan: 'Sinar Baru' },
+  { 
+    id: 1, 
+    kode: 'AD-SMB-002', // DATA BARU: ID Barang
+    merk: 'Adidas', 
+    namaProduk: 'Samba OG', 
+    namaPaket: 'Seri 38-42 (Isi 12)', 
+    jumlahDus: 10, 
+    tujuan: 'Mitra Sport' 
+  },
+  { 
+    id: 2, 
+    kode: 'NK-AF1-001', 
+    merk: 'Nike', 
+    namaProduk: 'Air Force 1 \'07', 
+    namaPaket: 'Seri 39-43 (Isi 12)', 
+    jumlahDus: 5, 
+    tujuan: 'Toko Jaya Abadi' 
+  },
+  { 
+    id: 3, 
+    kode: 'NB-550-003', 
+    merk: 'New Balance', 
+    namaProduk: '550', 
+    namaPaket: 'Seri Anak A (Isi 20)', 
+    jumlahDus: 8, 
+    tujuan: 'Sinar Baru' 
+  },
 ];
 
 function AdminKeluarDashboard() {
@@ -34,8 +57,10 @@ function AdminKeluarDashboard() {
         <table>
           <thead>
             <tr>
+              <th>ID Barang</th> {/* KOLOM BARU */}
               <th>Merk</th>
               <th>Nama Produk</th>
+              <th>Paket Seri</th>
               <th>Jumlah Dus</th>
               <th>Tujuan</th>
             </tr>
@@ -43,9 +68,16 @@ function AdminKeluarDashboard() {
           <tbody>
             {transaksiTerakhir.map(item => (
               <tr key={item.id}>
+                
+                {/* DATA BARU: ID Barang Monospace */}
+                <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
+                  {item.kode}
+                </td>
+
                 <td>{item.merk}</td>
                 <td>{item.namaProduk}</td>
-                <td>{item.jumlahDus}</td>
+                <td>{item.namaPaket}</td>
+                <td style={{ fontWeight: 'bold' }}>{item.jumlahDus}</td>
                 <td>{item.tujuan}</td>
               </tr>
             ))}

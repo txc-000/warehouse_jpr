@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import UserModal from '../components/UserModal.jsx'; // Import modal
 import './EditTransaksiPage.css'; // Pakai ulang CSS tabel
 
-// Data dummy
+// Data dummy diperbarui dengan field 'namaStaff'
 const initialData = [
-  { id: 1, username: 'admin_masuk', password: '123', role: 'ADMIN BARANG MASUK' },
-  { id: 2, username: 'admin_keluar', password: '123', role: 'ADMIN BARANG KELUAR' },
-  { id: 3, username: 'pemilik', password: '123', role: 'PEMILIK' },
+  { id: 1, namaStaff: 'Budi Santoso', username: 'admin_masuk', password: '123', role: 'ADMIN BARANG MASUK' },
+  { id: 2, namaStaff: 'Siti Aminah', username: 'admin_keluar', password: '123', role: 'ADMIN BARANG KELUAR' },
+  { id: 3, namaStaff: 'Pak Bos', username: 'pemilik', password: '123', role: 'PEMILIK' },
 ];
 
 function KelolaUserPage() {
@@ -34,6 +34,7 @@ function KelolaUserPage() {
 
   // Fungsi untuk SIMPAN (bisa tambah/edit)
   const handleSave = (data) => {
+    // Pastikan data yang dikirim dari modal memiliki properti namaStaff, username, password, role
     if (currentUser) {
       // Logic EDIT
       setDaftarUser(prev =>
@@ -41,7 +42,7 @@ function KelolaUserPage() {
       );
     } else {
       // Logic TAMBAH
-      const newId = daftarUser.length + 1;
+      const newId = daftarUser.length > 0 ? daftarUser[daftarUser.length - 1].id + 1 : 1;
       setDaftarUser(prev => [...prev, { ...data, id: newId }]);
     }
     handleClose();
@@ -61,18 +62,18 @@ function KelolaUserPage() {
         <p>Tambah, edit, atau hapus user yang dapat mengakses sistem.</p>
       </header>
 
-      {/* Kita pakai ulang class 'button-tambah' */}
       <button className="button-tambah" onClick={handleTambah}>
         + Tambah User
       </button>
 
-      {/* Kita pakai ulang class 'tabel-container-full' */}
       <div className="tabel-container-full">
         <table>
           <thead>
             <tr>
               <th>ID</th>
+              <th>Nama Staff</th> {/* Kolom Baru */}
               <th>Username</th>
+              <th>Password</th>   {/* Kolom Baru */}
               <th>Role</th>
               <th>Aksi</th>
             </tr>
@@ -81,7 +82,9 @@ function KelolaUserPage() {
             {daftarUser.map(item => (
               <tr key={item.id}>
                 <td>{item.id}</td>
+                <td>{item.namaStaff}</td> {/* Menampilkan Nama Staff */}
                 <td>{item.username}</td>
+                <td>{item.password}</td>   {/* Menampilkan Password */}
                 <td>{item.role}</td>
                 <td>
                   <button className="edit-button" onClick={() => handleEdit(item)}>

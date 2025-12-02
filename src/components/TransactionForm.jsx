@@ -1,38 +1,38 @@
 import React, { useState, useMemo } from 'react';
 import './TransactionForm.css';
 
-// --- (1) STRUKTUR DATA BARU (SAMA SEPERTI EDITMODAL) ---
+// --- (1) DATA BARU (DENGAN ID/KODE & MERK) ---
 const mockMerkList = [
   { id: 1, nama: 'Nike' },
   { id: 2, nama: 'Adidas' },
   { id: 3, nama: 'New Balance' },
+  { id: 4, nama: 'Vans' },
 ];
 
-// Produk sekarang terhubung ke Merk via 'merkId'
 const mockProdukList = [
-  { id: 'SKU-001', nama: 'Sepatu Lari Model X', merkId: 1 },
-  { id: 'SKU-004', nama: 'Air Force 1 \'07', merkId: 1 },
-  { id: 'SKU-002', nama: 'Sandal Model Y', merkId: 2 },
-  { id: 'SKU-005', nama: 'Samba OG', merkId: 2 },
-  { id: 'SKU-003', nama: '550', merkId: 3 },
+  { id: 1, kode: 'NK-RUN-005', nama: 'Sepatu Lari Model X', merkId: 1 },
+  { id: 2, kode: 'NK-AF1-001', nama: 'Air Force 1 \'07', merkId: 1 },
+  { id: 3, kode: 'AD-SDL-006', nama: 'Sandal Model Y', merkId: 2 },
+  { id: 4, kode: 'AD-SMB-002', nama: 'Samba OG', merkId: 2 },
+  { id: 5, kode: 'NB-550-003', nama: '550', merkId: 3 },
+  { id: 6, kode: 'VN-OLD-004', nama: 'Old Skool', merkId: 4 },
 ];
 
 const mockPaketList = [
   { id: 1, nama: 'Seri 38-42 (Isi 12)' },
   { id: 2, nama: 'Seri 39-43 (Isi 12)' },
   { id: 3, nama: 'Seri Anak A (Isi 20)' },
+  { id: 4, nama: 'Seri 40-44 (Isi 12)' },
 ];
-// --- BATAS DATA BARU ---
 
 function TransactionForm() {
-  // --- (2) STATE DIPERBARUI ---
-  const [selectedMerkId, setSelectedMerkId] = useState(''); // <-- State baru untuk Merk
-  const [selectedProdukId, setSelectedProdukId] = useState('');
+  const [selectedMerkId, setSelectedMerkId] = useState('');
+  const [selectedProdukId, setSelectedProdukId] = useState(''); // Satu ID untuk Kode & Nama
   const [selectedPaketId, setSelectedPaketId] = useState('');
   const [jumlahDus, setJumlahDus] = useState('1');
   const [supplier, setSupplier] = useState('');
 
-  // --- (3) LOGIKA DROPDOWN BERTINGKAT ---
+  // --- FILTER PRODUK BERDASARKAN MERK ---
   const filteredProdukList = useMemo(() => {
     if (!selectedMerkId) return [];
     return mockProdukList.filter(p => p.merkId === Number(selectedMerkId));
@@ -43,25 +43,29 @@ function TransactionForm() {
     setSelectedProdukId(''); // Reset produk saat merk ganti
   };
   
-  // --- (4) LOGIKA SUBMIT DIPERBARUI ---
+  // --- SUBMIT ---
   const handleSubmit = (event) => {
     event.preventDefault(); 
     
-    // Cari nama & merk berdasarkan ID
     const merkTerpilih = mockMerkList.find(m => m.id === Number(selectedMerkId));
+    const produkTerpilih = mockProdukList.find(p => p.id === Number(selectedProdukId));
+    const paketTerpilih = mockPaketList.find(p => p.id === Number(selectedPaketId));
     
     const dataUntukBackend = {
-      id_produk: selectedProdukId,
-      merk: merkTerpilih ? merkTerpilih.nama : 'Tidak Diketahui',
-      id_paket_seri: selectedPaketId,
+      id_transaksi: Date.now(), 
+      kode_barang: produkTerpilih ? produkTerpilih.kode : '-',
+      merk: merkTerpilih ? merkTerpilih.nama : '-',
+      nama_produk: produkTerpilih ? produkTerpilih.nama : '-',
+      nama_paket: paketTerpilih ? paketTerpilih.nama : '-',
       jumlah_dus: Number(jumlahDus),
       supplier: supplier,
+      tanggal: new Date().toISOString()
     };
 
-    console.log('Data Transaksi Masuk (Grosir):', dataUntukBackend);
-    alert('Transaksi (grosir) berhasil disimpan!');
+    console.log('Data Transaksi:', dataUntukBackend);
+    alert(`Transaksi Berhasil Disimpan!\n\nKode: ${dataUntukBackend.kode_barang}\nProduk: ${dataUntukBackend.nama_produk}\nJumlah: ${dataUntukBackend.jumlah_dus} Dus`);
     
-    // Reset form
+    // Reset
     setSelectedMerkId('');
     setSelectedProdukId('');
     setSelectedPaketId('');
@@ -75,7 +79,7 @@ function TransactionForm() {
       
       <form onSubmit={handleSubmit}>
 
-        {/* --- (5) FORMULIR BARU DENGAN 3 DROPDOWN --- */}
+        {/* 1. PILIH MERK */}
         <div className="form-group">
           <label htmlFor="merk">Merk</label>
           <select
@@ -93,24 +97,48 @@ function TransactionForm() {
           </select>
         </div>
 
+        {/* 2. DROPDOWN KODE BARANG (Baru) */}
         <div className="form-group">
-          <label htmlFor="produk">Pilih Produk</label>
+          <label htmlFor="kodeBarang">Kode Barang (SKU)</label>
           <select
-            id="produk"
+            id="kodeBarang"
             value={selectedProdukId}
+            // Mengubah Kode otomatis mengubah Nama juga (karena pakai ID yang sama)
             onChange={(e) => setSelectedProdukId(e.target.value)}
             required
-            disabled={!selectedMerkId} // Nonaktif jika merk belum dipilih
+            disabled={!selectedMerkId}
+            style={{ fontFamily: 'monospace', fontWeight: 'bold' }} // Style kode
           >
-            <option value="" disabled>-- Pilih produk --</option>
+            <option value="" disabled>-- Pilih Kode --</option>
             {filteredProdukList.map(produk => (
               <option key={produk.id} value={produk.id}>
-                {produk.nama} ({produk.id})
+                {produk.kode}
               </option>
             ))}
           </select>
         </div>
 
+        {/* 3. DROPDOWN NAMA PRODUK (Sinkron dengan Kode) */}
+        <div className="form-group">
+          <label htmlFor="namaProduk">Nama Produk</label>
+          <select
+            id="namaProduk"
+            value={selectedProdukId}
+            // Mengubah Nama otomatis mengubah Kode juga
+            onChange={(e) => setSelectedProdukId(e.target.value)}
+            required
+            disabled={!selectedMerkId}
+          >
+            <option value="" disabled>-- Pilih Nama Produk --</option>
+            {filteredProdukList.map(produk => (
+              <option key={produk.id} value={produk.id}>
+                {produk.nama}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 4. PAKET SERI */}
         <div className="form-group">
           <label htmlFor="paketSeri">Pilih Paket Seri</label>
           <select
@@ -128,6 +156,7 @@ function TransactionForm() {
           </select>
         </div>
 
+        {/* 5. JUMLAH DUS */}
         <div className="form-group">
           <label htmlFor="jumlahDus">Jumlah Dus Masuk</label>
           <input
@@ -140,6 +169,7 @@ function TransactionForm() {
           />
         </div>
 
+        {/* 6. SUPPLIER */}
         <div className="form-group">
           <label htmlFor="supplier">Supplier</label>
           <input

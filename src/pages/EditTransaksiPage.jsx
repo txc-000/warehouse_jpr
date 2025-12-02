@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import EditModal from '../components/EditModal.jsx'; // Import modal
-import './EditTransaksiPage.css'; // CSS untuk tabel di halaman ini
+import React, { useState, useMemo } from 'react';
+import EditModal from '../components/EditModal.jsx'; 
+import './EditTransaksiPage.css'; 
+import './Dashboard.css'; // Import CSS Dashboard untuk Search Bar
 
-// --- DATA DUMMY (VERSI GROSIR + MERK) ---
+// --- DATA DUMMY (DISESUAIKAN DENGAN FORMAT BARU) ---
 const initialData = [
   { 
     id: 1, 
-    id_produk: 'SKU-001',
-    merk: 'Nike', // <-- MERK DITAMBAHKAN
+    kode: 'NK-RUN-005', // ID Barang
+    merk: 'Nike', 
     namaProduk: 'Sepatu Lari Model X', 
     id_paket_seri: 1,
     namaPaket: 'Seri 38-42 (Isi 12)', 
@@ -16,8 +17,8 @@ const initialData = [
   },
   { 
     id: 2, 
-    id_produk: 'SKU-002',
-    merk: 'Adidas', // <-- MERK DITAMBAHKAN
+    kode: 'AD-SDL-006',
+    merk: 'Adidas', 
     namaProduk: 'Sandal Model Y', 
     id_paket_seri: 3,
     namaPaket: 'Seri Anak A (Isi 20)', 
@@ -26,8 +27,8 @@ const initialData = [
   },
   { 
     id: 3, 
-    id_produk: 'SKU-001',
-    merk: 'Nike', // <-- MERK DITAMBAHKAN
+    kode: 'NK-RUN-005',
+    merk: 'Nike', 
     namaProduk: 'Sepatu Lari Model X', 
     id_paket_seri: 2,
     namaPaket: 'Seri 39-43 (Isi 12)', 
@@ -40,8 +41,10 @@ function EditTransaksiPage() {
   const [transactions, setTransactions] = useState(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  
+  // State Pencarian
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Fungsi-fungsi ini (handleEdit, handleClose) sudah benar
   const handleEdit = (transaction) => {
     setSelectedTransaction(transaction);
     setIsModalOpen(true);
@@ -65,6 +68,19 @@ function EditTransaksiPage() {
     }
   };
 
+  // --- LOGIC PENCARIAN ---
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(item => {
+      const term = searchTerm.toLowerCase();
+      return (
+        item.kode.toLowerCase().includes(term) || // Cari ID Barang
+        item.namaProduk.toLowerCase().includes(term) ||
+        item.merk.toLowerCase().includes(term) ||
+        item.supplier.toLowerCase().includes(term)
+      );
+    });
+  }, [transactions, searchTerm]);
+
   return (
     <div className="dashboard-content">
       <header className="dashboard-header">
@@ -72,13 +88,31 @@ function EditTransaksiPage() {
         <p>Kelola dan perbarui data transaksi yang sudah masuk.</p>
       </header>
 
+      {/* --- FITUR PENCARIAN --- */}
+      <div className="filter-container" style={{ display: 'flex', marginBottom: '20px' }}>
+        <input 
+          type="text" 
+          placeholder="🔍 Cari ID barang, merk, produk, atau supplier..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+          style={{ 
+            padding: '12px 15px', 
+            borderRadius: '8px', 
+            border: '1px solid #ddd', 
+            width: '100%',
+            maxWidth: '500px', 
+            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+          }}
+        />
+      </div>
+
       <div className="tabel-container-full">
         <table>
-          {/* --- HEADER TABEL (DIUBAH) --- */}
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Merk</th> {/* <-- MERK DITAMBAHKAN */}
+              <th>ID Barang</th> {/* KOLOM BARU */}
+              <th>Merk</th>
               <th>Nama Produk</th>
               <th>Paket Seri</th>
               <th>Jumlah Dus</th>
@@ -86,26 +120,38 @@ function EditTransaksiPage() {
               <th>Aksi</th>
             </tr>
           </thead>
-          {/* --- ISI TABEL (DIUBAH) --- */}
           <tbody>
-            {transactions.map(item => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.merk}</td> {/* <-- MERK DITAMBAHKAN */}
-                <td>{item.namaProduk}</td>
-                <td>{item.namaPaket}</td>
-                <td>{item.jumlahDus}</td>
-                <td>{item.supplier}</td>
-                <td>
-                  <button className="edit-button" onClick={() => handleEdit(item)}>
-                    Edit
-                  </button>
-                  <button className="delete-button" onClick={() => handleDelete(item.id)}>
-                    Hapus
-                  </button>
+            {filteredTransactions.length > 0 ? (
+              filteredTransactions.map(item => (
+                <tr key={item.id}>
+                  
+                  {/* ID Barang (Monospace) */}
+                  <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
+                    {item.kode}
+                  </td>
+
+                  <td>{item.merk}</td>
+                  <td>{item.namaProduk}</td>
+                  <td>{item.namaPaket}</td>
+                  <td style={{ fontWeight: 'bold' }}>{item.jumlahDus}</td>
+                  <td>{item.supplier}</td>
+                  <td>
+                    <button className="edit-button" onClick={() => handleEdit(item)}>
+                      Edit
+                    </button>
+                    <button className="delete-button" onClick={() => handleDelete(item.id)}>
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#999' }}>
+                  Data transaksi tidak ditemukan.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -119,7 +165,6 @@ function EditTransaksiPage() {
       )}
     </div>
   );
-
 }
 
 export default EditTransaksiPage;

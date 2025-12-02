@@ -3,19 +3,41 @@ import { Link } from 'react-router-dom';
 import './Dashboard.css'; // File CSS Anda yang sudah ada
 import './EditTransaksiPage.css'; // Kita pakai ulang style tabel
 
-// --- SIMULASI 3 TRANSAKSI MASUK TERAKHIR ---
-// (Data dummy sudah diperbarui dengan "merk")
+// --- SIMULASI 3 TRANSAKSI MASUK TERAKHIR (DENGAN ID BARANG) ---
 const transaksiTerakhir = [
-  { id: 1, merk: 'Nike', namaProduk: 'Sepatu Lari Model X', namaPaket: 'Seri 38-42 (Isi 12)', jumlahDus: 10, supplier: 'Supplier A' },
-  { id: 2, merk: 'Adidas', namaProduk: 'Sandal Model Y', namaPaket: 'Seri Anak A (Isi 20)', jumlahDus: 5, supplier: 'Supplier B' },
-  { id: 3, merk: 'Nike', namaProduk: 'Sepatu Lari Model X', namaPaket: 'Seri 39-43 (Isi 12)', jumlahDus: 8, supplier: 'Supplier A' },
+  { 
+    id: 1, 
+    kode: 'NK-RUN-005', // DATA BARU
+    merk: 'Nike', 
+    namaProduk: 'Sepatu Lari Model X', 
+    namaPaket: 'Seri 38-42 (Isi 12)', 
+    jumlahDus: 10, 
+    supplier: 'Supplier A' 
+  },
+  { 
+    id: 2, 
+    kode: 'AD-SDL-006', 
+    merk: 'Adidas', 
+    namaProduk: 'Sandal Model Y', 
+    namaPaket: 'Seri Anak A (Isi 20)', 
+    jumlahDus: 5, 
+    supplier: 'Supplier B' 
+  },
+  { 
+    id: 3, 
+    kode: 'NK-RUN-005', 
+    merk: 'Nike', 
+    namaProduk: 'Sepatu Lari Model X', 
+    namaPaket: 'Seri 39-43 (Isi 12)', 
+    jumlahDus: 8, 
+    supplier: 'Supplier A' 
+  },
 ];
 
-function Dashboard() {
+function DashboardAdminMasuk() {
   return (
     <div className="dashboard-content">
       
-      {/* Header lama Anda, tapi tanpa navigasi tab */}
       <header className="dashboard-header">
         <h1>Dashboard Admin Barang Masuk</h1>
         <p>Pintasan untuk mengelola data dan transaksi masuk.</p>
@@ -48,7 +70,8 @@ function Dashboard() {
         <table>
           <thead>
             <tr>
-              <th>Merk</th> {/* <-- TAMBAHKAN INI */}
+              <th>ID Barang</th> {/* KOLOM BARU */}
+              <th>Merk</th>
               <th>Nama Produk</th>
               <th>Paket Seri</th>
               <th>Jumlah Dus</th>
@@ -58,10 +81,16 @@ function Dashboard() {
           <tbody>
             {transaksiTerakhir.map(item => (
               <tr key={item.id}>
-                <td>{item.merk}</td> {/* <-- TAMBAHKAN INI */}
+                
+                {/* DATA BARU: ID Barang */}
+                <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
+                  {item.kode}
+                </td>
+
+                <td>{item.merk}</td>
                 <td>{item.namaProduk}</td>
                 <td>{item.namaPaket}</td>
-                <td>{item.jumlahDus}</td>
+                <td style={{ fontWeight: 'bold' }}>{item.jumlahDus}</td>
                 <td>{item.supplier}</td>
               </tr>
             ))}
@@ -73,4 +102,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default DashboardAdminMasuk;

@@ -4,24 +4,48 @@ import './EditTransaksiPage.css';
 // Kita tetap pakai file CSS ini, style-nya masih berguna
 import './VerifikasiStok.css'; 
 
-// --- SIMULASI DATA (VERSI GROSIR PER DUS) ---
-// Ini adalah logika stok yang BENAR untuk bisnis Anda.
-// Setiap baris adalah SATU JENIS DUS (Produk + Paket Seri).
+// --- SIMULASI DATA (VERSI GROSIR PER DUS + ID BARANG) ---
 const stokPerDus = [
-  { id: 1, namaProduk: 'Air Force 1 \'07', namaPaket: 'Seri 38-42 (Isi 12)', stokSistem: 10, stokFisik: 10 },
-  { id: 2, namaProduk: 'Air Force 1 \'07', namaPaket: 'Seri 39-43 (Isi 12)', stokSistem: 8, stokFisik: 8 },
-  { id: 3, namaProduk: 'Samba OG', namaPaket: 'Seri 38-42 (Isi 12)', stokSistem: 15, stokFisik: 15 },
-  { id: 4, namaProduk: '550', namaPaket: 'Seri Anak A (Isi 20)', stokSistem: 20, stokFisik: 20 },
+  { 
+    id: 1, 
+    kode: 'NK-AF1-001', // DATA BARU: ID Barang
+    namaProduk: 'Air Force 1 \'07', 
+    namaPaket: 'Seri 38-42 (Isi 12)', 
+    stokSistem: 10, 
+    stokFisik: 10 
+  },
+  { 
+    id: 2, 
+    kode: 'NK-AF1-002', 
+    namaProduk: 'Air Force 1 \'07', 
+    namaPaket: 'Seri 39-43 (Isi 12)', 
+    stokSistem: 8, 
+    stokFisik: 8 
+  },
+  { 
+    id: 3, 
+    kode: 'AD-SMB-002', 
+    namaProduk: 'Samba OG', 
+    namaPaket: 'Seri 38-42 (Isi 12)', 
+    stokSistem: 15, 
+    stokFisik: 15 
+  },
+  { 
+    id: 4, 
+    kode: 'NB-550-003', 
+    namaProduk: '550', 
+    namaPaket: 'Seri Anak A (Isi 20)', 
+    stokSistem: 20, 
+    stokFisik: 20 
+  },
 ];
-
 
 // --- KOMPONEN HALAMAN (VERSI STOCK OPNAME PER DUS) ---
 
 function VerifikasiStokPage() {
-  // Kita gunakan data 'stokPerDus' yang baru
   const [daftarStok, setDaftarStok] = useState(stokPerDus);
 
-  // Fungsi ini logikanya SAMA, tidak perlu diubah
+  // Fungsi mengubah stok fisik
   const handleStokFisikChange = (id, newValue) => {
     const nilai = Math.max(0, Number(newValue)); 
     setDaftarStok(prevStok =>
@@ -31,14 +55,12 @@ function VerifikasiStokPage() {
     );
   };
 
-  // Fungsi ini kita ubah sedikit pesannya agar jelas 'dus'
+  // Fungsi penyesuaian (simulasi)
   const handleSesuaikan = (item) => {
     const selisih = item.stokFisik - item.stokSistem;
     
-    // Pesan diubah menjadi 'dus'
-    alert(`Akan dilakukan penyesuaian untuk ${item.namaProduk} (${item.namaPaket}). \nSelisih: ${selisih} DUS. \n\n(Langkah selanjutnya adalah membuka modal untuk alasan)`);
+    alert(`Akan dilakukan penyesuaian untuk ID: ${item.kode}\nProduk: ${item.namaProduk} (${item.namaPaket}). \nSelisih: ${selisih} DUS. \n\n(Langkah selanjutnya adalah membuka modal untuk alasan)`);
     
-    // Logika simulasi ini tetap sama
     setDaftarStok(prevStok =>
       prevStok.map(i =>
         i.id === item.id ? { ...i, stokSistem: item.stokFisik } : i
@@ -55,9 +77,9 @@ function VerifikasiStokPage() {
 
       <div className="tabel-container-full">
         <table>
-          {/* --- HEADER TABEL DIUBAH (LEBIH SEDERHANA) --- */}
           <thead>
             <tr>
+              <th>ID Barang</th> {/* KOLOM BARU */}
               <th>Nama Produk</th>
               <th>Nama Paket Seri</th>
               <th>Stok Sistem (Dus)</th>
@@ -71,9 +93,13 @@ function VerifikasiStokPage() {
               const selisih = item.stokFisik - item.stokSistem;
               
               return (
-                // Logika baris ini SAMA, hanya datanya yang beda
                 <tr key={item.id} className={selisih !== 0 ? 'row-warning' : ''}>
-                  {/* --- DATA TABEL DIUBAH --- */}
+                  
+                  {/* DATA BARU: Menampilkan ID Barang */}
+                  <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
+                    {item.kode}
+                  </td>
+
                   <td>{item.namaProduk}</td>
                   <td>{item.namaPaket}</td>
                   <td>{item.stokSistem}</td>

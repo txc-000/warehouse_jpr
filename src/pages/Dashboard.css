@@ -1,9 +1,9 @@
-/* Dashboard.css - Versi Modern & Lebih Lega */
+/* Dashboard.css - Versi Modern, Lega & Tombol Kotak */
 
 /* 1. CONTAINER UTAMA: Memberi jarak agar tidak mepet */
 .dashboard-content {
   padding: 40px 50px; /* Atas-Bawah 40px, Kiri-Kanan 50px */
-  background-color: #f8f9fa; /* Latar belakang abu-abu sangat muda agar kartu terlihat jelas */
+  background-color: #f8f9fa; /* Latar belakang abu-abu sangat muda */
   min-height: 100vh; /* Agar background mengisi layar penuh */
 }
 
@@ -142,4 +142,45 @@
   padding: 0; /* Padding di-handle oleh sel tabel */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden; /* Agar sudut membulat tabel terlihat */
+}
+
+/* 8. STYLE TOMBOL HISTORY (VERSI KOTAK / BOX) */
+.history-toggle-container {
+  display: inline-flex;
+  background-color: #e9ecef; /* Background abu-abu wadah */
+  padding: 4px; 
+  border-radius: 8px; /* Sudut wadah KOTAK (tidak bulat penuh) */
+  gap: 6px; 
+  margin-top: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.history-toggle-btn {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 20px;
+  border-radius: 6px; /* Sudut tombol KOTAK */
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6c757d; 
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Efek Hover */
+.history-toggle-btn:hover {
+  background-color: rgba(0,0,0,0.05);
+  color: #495057;
+}
+
+/* State Aktif (Tombol yang terpilih) */
+.history-toggle-btn.active {
+  background-color: #ffffff; /* Putih */
+  color: #007bff; /* Biru */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Bayangan kotak halus */
+  font-weight: 700;
 }

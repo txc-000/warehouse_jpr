@@ -1,67 +1,159 @@
+/* Import Font Modern (Opsional, akan fallback ke sans-serif jika tidak internet) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* --- CONTAINER UTAMA --- */
 .login-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #f4f7f6; /* Warna latar belakang global kita */
+  min-height: 100vh;
+  /* Gradient Background Modern */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
 }
 
-.login-box {
+/* --- KARTU LOGIN --- */
+.login-card {
   background-color: #ffffff;
-  padding: 30px 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 40px;
+  border-radius: 16px; /* Sudut lebih bulat */
+  /* Efek bayangan (Shadow) yang lembut & elegan */
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
   text-align: center;
+  
+  /* Animasi muncul (Fade In) */
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.login-box h2 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #333;
+/* --- HEADER --- */
+.login-header {
+  margin-bottom: 30px;
 }
 
-.login-box p {
-  margin-bottom: 25px;
-  color: #666;
+.logo-circle {
+  font-size: 40px;
+  margin-bottom: 15px;
+  display: inline-block;
+  /* Animasi pantul kecil pada logo */
+  animation: bounce 2s infinite; 
 }
 
-.login-group {
+.login-header h2 {
+  margin: 0;
+  color: #1a202c;
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.login-header p {
+  margin-top: 8px;
+  color: #718096;
+  font-size: 14px;
+}
+
+/* --- FORM INPUTS --- */
+.input-group {
   margin-bottom: 20px;
   text-align: left;
 }
 
-.login-group label {
+.input-group label {
   display: block;
-  font-weight: 600;
+  font-weight: 500;
+  font-size: 14px;
+  color: #4a5568;
   margin-bottom: 8px;
-  color: #444;
 }
 
-/* Kita pakai ulang style input dari TransactionForm */
-.login-group input {
+/* Wrapper untuk menaruh ikon di dalam input */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Ikon SVG */
+.input-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: #a0aec0;
+  transition: color 0.3s;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 12px 12px 12px 40px; /* Padding kiri besar agar teks tidak menabrak ikon */
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #2d3748;
+  background-color: #f7fafc;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Efek saat input diklik (Focus) */
+.input-wrapper input:focus {
+  border-color: #3182ce; /* Warna biru */
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1); /* Glow biru halus */
+}
+
+.input-wrapper input:focus + .input-icon {
+  color: #3182ce; /* Ikon ikut berubah biru */
+}
+
+/* --- TOMBOL --- */
+.login-button {
+  background-color: #2563eb; /* Biru modern */
+  color: white;
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.95rem;
-}
-
-/* Kita pakai ulang style tombol dari TransactionForm */
-.login-button {
-  background-color: #007bff;
-  color: white;
-  padding: 12px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  width: 100%; /* Buat tombol jadi penuh */
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
 }
 
 .login-button:hover {
-  background-color: #0056b3;
+  background-color: #1d4ed8;
+  transform: translateY(-2px); /* Tombol naik sedikit */
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+/* --- FOOTER KECIL --- */
+.login-footer {
+  margin-top: 25px;
+  color: #cbd5e0;
+  font-size: 12px;
+}
+
+/* --- ANIMASI --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }

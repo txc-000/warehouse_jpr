@@ -1,37 +1,39 @@
 import React, { useState, useMemo } from 'react';
-import './TransactionForm.css'; // Pakai ulang CSS
+import '../components/TransactionForm.css'; // Pakai CSS form yang sama
 
-// --- (1) STRUKTUR DATA BARU (SAMA SEPERTI LAINNYA) ---
+// --- (1) DATA MOCK (KONSISTEN DENGAN HALAMAN LAIN) ---
 const mockMerkList = [
   { id: 1, nama: 'Nike' },
   { id: 2, nama: 'Adidas' },
   { id: 3, nama: 'New Balance' },
+  { id: 4, nama: 'Vans' },
 ];
 
 const mockProdukList = [
-  { id: 'SKU-001', nama: 'Sepatu Lari Model X', merkId: 1 },
-  { id: 'SKU-004', nama: 'Air Force 1 \'07', merkId: 1 },
-  { id: 'SKU-002', nama: 'Sandal Model Y', merkId: 2 },
-  { id: 'SKU-005', nama: 'Samba OG', merkId: 2 },
-  { id: 'SKU-003', nama: '550', merkId: 3 },
+  { id: 1, kode: 'NK-RUN-005', nama: 'Sepatu Lari Model X', merkId: 1 },
+  { id: 2, kode: 'NK-AF1-001', nama: 'Air Force 1 \'07', merkId: 1 },
+  { id: 3, kode: 'AD-SDL-006', nama: 'Sandal Model Y', merkId: 2 },
+  { id: 4, kode: 'AD-SMB-002', nama: 'Samba OG', merkId: 2 },
+  { id: 5, kode: 'NB-550-003', nama: '550', merkId: 3 },
+  { id: 6, kode: 'VN-OLD-004', nama: 'Old Skool', merkId: 4 },
 ];
 
 const mockPaketList = [
   { id: 1, nama: 'Seri 38-42 (Isi 12)' },
   { id: 2, nama: 'Seri 39-43 (Isi 12)' },
   { id: 3, nama: 'Seri Anak A (Isi 20)' },
+  { id: 4, nama: 'Seri 40-44 (Isi 12)' },
 ];
-// --- BATAS DATA BARU ---
 
-function SepatuKeluar() { // Ganti nama fungsi jika file Anda SepatuKeluar.jsx
-  // --- (2) STATE DIPERBARUI ---
+function SepatuKeluar() {
+  // --- STATE ---
   const [selectedMerkId, setSelectedMerkId] = useState('');
-  const [selectedProdukId, setSelectedProdukId] = useState('');
+  const [selectedProdukId, setSelectedProdukId] = useState(''); // Mengontrol Kode & Nama
   const [selectedPaketId, setSelectedPaketId] = useState('');
   const [jumlahDus, setJumlahDus] = useState('1');
   const [tujuan, setTujuan] = useState('');
 
-  // --- (3) LOGIKA DROPDOWN BERTINGKAT ---
+  // --- FILTER PRODUK ---
   const filteredProdukList = useMemo(() => {
     if (!selectedMerkId) return [];
     return mockProdukList.filter(p => p.merkId === Number(selectedMerkId));
@@ -42,24 +44,29 @@ function SepatuKeluar() { // Ganti nama fungsi jika file Anda SepatuKeluar.jsx
     setSelectedProdukId(''); // Reset produk
   };
   
-  // --- (4) LOGIKA SUBMIT DIPERBARUI ---
+  // --- SUBMIT ---
   const handleSubmit = (event) => {
-    event.preventDefault();
+    event.preventDefault(); 
     
     const merkTerpilih = mockMerkList.find(m => m.id === Number(selectedMerkId));
-
+    const produkTerpilih = mockProdukList.find(p => p.id === Number(selectedProdukId));
+    const paketTerpilih = mockPaketList.find(p => p.id === Number(selectedPaketId));
+    
     const dataUntukBackend = {
-      id_produk: selectedProdukId,
-      merk: merkTerpilih ? merkTerpilih.nama : 'Tidak Diketahui',
-      id_paket_seri: selectedPaketId,
+      id_transaksi: Date.now(), 
+      kode_barang: produkTerpilih ? produkTerpilih.kode : '-',
+      merk: merkTerpilih ? merkTerpilih.nama : '-',
+      nama_produk: produkTerpilih ? produkTerpilih.nama : '-',
+      nama_paket: paketTerpilih ? paketTerpilih.nama : '-',
       jumlah_dus: Number(jumlahDus),
-      tujuan: tujuan,
+      tujuan: tujuan, // Barang Keluar ke Tujuan/Customer
+      tanggal: new Date().toISOString()
     };
 
-    console.log('Data Transaksi Keluar (Grosir):', dataUntukBackend);
-    alert('Transaksi keluar (grosir) berhasil disimpan!');
+    console.log('Data Transaksi Keluar:', dataUntukBackend);
+    alert(`Transaksi Keluar Berhasil!\n\nKode: ${dataUntukBackend.kode_barang}\nProduk: ${dataUntukBackend.nama_produk}\nTujuan: ${dataUntukBackend.tujuan}`);
     
-    // Reset form
+    // Reset Form
     setSelectedMerkId('');
     setSelectedProdukId('');
     setSelectedPaketId('');
@@ -68,12 +75,12 @@ function SepatuKeluar() { // Ganti nama fungsi jika file Anda SepatuKeluar.jsx
   };
 
   return (
-    <div className="form-container"> 
+    <div className="form-container">
       <h3>Form Transaksi Sepatu Keluar (Grosir)</h3>
       
       <form onSubmit={handleSubmit}>
-        
-        {/* --- (5) FORMULIR BARU DENGAN 3 DROPDOWN --- */}
+
+        {/* 1. MERK */}
         <div className="form-group">
           <label htmlFor="merk">Merk</label>
           <select
@@ -91,24 +98,48 @@ function SepatuKeluar() { // Ganti nama fungsi jika file Anda SepatuKeluar.jsx
           </select>
         </div>
 
+        {/* 2. KODE BARANG (SKU) */}
         <div className="form-group">
-          <label htmlFor="produk">Pilih Produk</label>
+          <label htmlFor="kodeBarang">Kode Barang (SKU)</label>
           <select
-            id="produk"
+            id="kodeBarang"
             value={selectedProdukId}
+            // Ubah kode = Ubah nama juga
             onChange={(e) => setSelectedProdukId(e.target.value)}
             required
             disabled={!selectedMerkId}
+            style={{ fontFamily: 'monospace', fontWeight: 'bold' }}
           >
-            <option value="" disabled>-- Pilih produk --</option>
+            <option value="" disabled>-- Pilih Kode --</option>
             {filteredProdukList.map(produk => (
               <option key={produk.id} value={produk.id}>
-                {produk.nama} ({produk.id})
+                {produk.kode}
               </option>
             ))}
           </select>
         </div>
 
+        {/* 3. NAMA PRODUK */}
+        <div className="form-group">
+          <label htmlFor="namaProduk">Nama Produk</label>
+          <select
+            id="namaProduk"
+            value={selectedProdukId}
+            // Ubah nama = Ubah kode juga
+            onChange={(e) => setSelectedProdukId(e.target.value)}
+            required
+            disabled={!selectedMerkId}
+          >
+            <option value="" disabled>-- Pilih Nama Produk --</option>
+            {filteredProdukList.map(produk => (
+              <option key={produk.id} value={produk.id}>
+                {produk.nama}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 4. PAKET SERI */}
         <div className="form-group">
           <label htmlFor="paketSeri">Pilih Paket Seri</label>
           <select
@@ -126,8 +157,9 @@ function SepatuKeluar() { // Ganti nama fungsi jika file Anda SepatuKeluar.jsx
           </select>
         </div>
 
+        {/* 5. JUMLAH DUS */}
         <div className="form-group">
-          <label htmlFor="jumlahDus">Jumlah Dus</label>
+          <label htmlFor="jumlahDus">Jumlah Dus Keluar</label>
           <input
             type="number"
             id="jumlahDus"
@@ -138,12 +170,13 @@ function SepatuKeluar() { // Ganti nama fungsi jika file Anda SepatuKeluar.jsx
           />
         </div>
 
+        {/* 6. TUJUAN (Customer/Toko) */}
         <div className="form-group">
-          <label htmlFor="tujuan">Tujuan</label>
+          <label htmlFor="tujuan">Tujuan (Customer/Toko)</label>
           <input
             type="text"
             id="tujuan"
-            placeholder="Nama customer/tujuan..."
+            placeholder="Contoh: Toko Jaya Abadi"
             value={tujuan}
             onChange={(e) => setTujuan(e.target.value)}
             required
@@ -151,11 +184,11 @@ function SepatuKeluar() { // Ganti nama fungsi jika file Anda SepatuKeluar.jsx
         </div>
 
         <button type="submit" className="submit-button">
-          Simpan Transaksi
+          Simpan Transaksi Keluar
         </button>
       </form>
     </div>
   );
 }
 
-export default SepatuKeluar; // Pastikan nama 'default export' sesuai nama fungsi
+export default SepatuKeluar;
