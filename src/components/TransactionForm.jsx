@@ -1,118 +1,163 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '../supabaseClient';
 import './TransactionForm.css';
 
-// --- (1) DATA BARU (DENGAN ID/KODE & MERK) ---
-const mockMerkList = [
-  { id: 1, nama: 'Nike' },
-  { id: 2, nama: 'Adidas' },
-  { id: 3, nama: 'New Balance' },
-  { id: 4, nama: 'Vans' },
-];
-
-const mockProdukList = [
-  { id: 1, kode: 'NK-RUN-005', nama: 'Sepatu Lari Model X', merkId: 1 },
-  { id: 2, kode: 'NK-AF1-001', nama: 'Air Force 1 \'07', merkId: 1 },
-  { id: 3, kode: 'AD-SDL-006', nama: 'Sandal Model Y', merkId: 2 },
-  { id: 4, kode: 'AD-SMB-002', nama: 'Samba OG', merkId: 2 },
-  { id: 5, kode: 'NB-550-003', nama: '550', merkId: 3 },
-  { id: 6, kode: 'VN-OLD-004', nama: 'Old Skool', merkId: 4 },
-];
-
-const mockPaketList = [
-  { id: 1, nama: 'Seri 38-42 (Isi 12)' },
-  { id: 2, nama: 'Seri 39-43 (Isi 12)' },
-  { id: 3, nama: 'Seri Anak A (Isi 20)' },
-  { id: 4, nama: 'Seri 40-44 (Isi 12)' },
-];
-
 function TransactionForm() {
-  const [selectedMerkId, setSelectedMerkId] = useState('');
-  const [selectedProdukId, setSelectedProdukId] = useState(''); // Satu ID untuk Kode & Nama
+  // State untuk Data Master (Dari Supabase)
+  const [masterSepatuList, setMasterSepatuList] = useState([]);
+  const [paketList, setPaketList] = useState([]);
+  
+  // State Form
+  const [selectedMerk, setSelectedMerk] = useState('');
+  const [selectedProdukKode, setSelectedProdukKode] = useState(''); // Kita pakai Kode Barang sebagai ID unik
   const [selectedPaketId, setSelectedPaketId] = useState('');
   const [jumlahDus, setJumlahDus] = useState('1');
   const [supplier, setSupplier] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // --- FILTER PRODUK BERDASARKAN MERK ---
-  const filteredProdukList = useMemo(() => {
-    if (!selectedMerkId) return [];
-    return mockProdukList.filter(p => p.merkId === Number(selectedMerkId));
-  }, [selectedMerkId]);
+  // 1. FETCH DATA SAAT LOAD
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      // Ambil Semua Sepatu
+      const { data: sepatuData } = await supabase
+        .from('master_sepatu')
+        .select('kode_barang, nama_produk, merk, stok');
+      
+      // Ambil Semua Paket Seri
+      const { data: paketData } = await supabase
+        .from('paket_seri')
+        .select('id, nama_paket, total_qty');
 
-  const handleMerkChange = (e) => {
-    setSelectedMerkId(e.target.value);
-    setSelectedProdukId(''); // Reset produk saat merk ganti
-  };
-  
-  // --- SUBMIT ---
-  const handleSubmit = (event) => {
-    event.preventDefault(); 
-    
-    const merkTerpilih = mockMerkList.find(m => m.id === Number(selectedMerkId));
-    const produkTerpilih = mockProdukList.find(p => p.id === Number(selectedProdukId));
-    const paketTerpilih = mockPaketList.find(p => p.id === Number(selectedPaketId));
-    
-    const dataUntukBackend = {
-      id_transaksi: Date.now(), 
-      kode_barang: produkTerpilih ? produkTerpilih.kode : '-',
-      merk: merkTerpilih ? merkTerpilih.nama : '-',
-      nama_produk: produkTerpilih ? produkTerpilih.nama : '-',
-      nama_paket: paketTerpilih ? paketTerpilih.nama : '-',
-      jumlah_dus: Number(jumlahDus),
-      supplier: supplier,
-      tanggal: new Date().toISOString()
+      if (sepatuData) setMasterSepatuList(sepatuData);
+      if (paketData) setPaketList(paketData);
     };
 
-    console.log('Data Transaksi:', dataUntukBackend);
-    alert(`Transaksi Berhasil Disimpan!\n\nKode: ${dataUntukBackend.kode_barang}\nProduk: ${dataUntukBackend.nama_produk}\nJumlah: ${dataUntukBackend.jumlah_dus} Dus`);
+    fetchMasterData();
+  }, []);
+
+  // 2. LOGIKA MERK UNIK
+  // Kita ambil daftar merk unik dari masterSepatuList
+  const merkListUnik = useMemo(() => {
+    const merks = masterSepatuList.map(item => item.merk);
+    return [...new Set(merks)]; // Hapus duplikat
+  }, [masterSepatuList]);
+
+  // 3. FILTER PRODUK BERDASARKAN MERK
+  const filteredProdukList = useMemo(() => {
+    if (!selectedMerk) return [];
+    return masterSepatuList.filter(p => p.merk === selectedMerk);
+  }, [selectedMerk, masterSepatuList]);
+
+  const handleMerkChange = (e) => {
+    setSelectedMerk(e.target.value);
+    setSelectedProdukKode(''); // Reset produk saat merk ganti
+  };
+
+  // 4. SUBMIT TRANSAKSI
+  const handleSubmit = async (event) => {
+    event.preventDefault(); 
+    setLoading(true);
+
+    // Cari objek data lengkap berdasarkan pilihan user
+    const produkTerpilih = masterSepatuList.find(p => p.kode_barang === selectedProdukKode);
+    const paketTerpilih = paketList.find(p => p.id === parseInt(selectedPaketId));
+
+    if (!produkTerpilih || !paketTerpilih) {
+      alert("Data tidak valid. Mohon lengkapi form.");
+      setLoading(false);
+      return;
+    }
+
+    const totalPcs = parseInt(jumlahDus) * paketTerpilih.total_qty;
+
+    // --- PROSES SIMPAN KE DATABASE ---
+    try {
+      // A. Simpan Riwayat Transaksi Masuk
+      const { error: transError } = await supabase
+        .from('transaksi_masuk')
+        .insert([{
+          kode_barang: produkTerpilih.kode_barang,
+          nama_produk: produkTerpilih.nama_produk,
+          merk: produkTerpilih.merk,
+          nama_paket: paketTerpilih.nama_paket,
+          jumlah_dus: parseInt(jumlahDus),
+          total_pcs: totalPcs,
+          supplier: supplier
+        }]);
+
+      if (transError) throw transError;
+
+      // B. Update Stok di Master Sepatu (Opsional: Tambah Stok Gudang)
+      // Stok di master biasanya dalam satuan DUS (sesuai request kamu sebelumnya)
+      const stokBaru = (produkTerpilih.stok || 0) + parseInt(jumlahDus);
+      
+      const { error: updateError } = await supabase
+        .from('master_sepatu')
+        .update({ stok: stokBaru })
+        .eq('kode_barang', produkTerpilih.kode_barang);
+
+      if (updateError) throw updateError;
+
+      // Sukses
+      alert(`✅ Transaksi Berhasil!\nStok ${produkTerpilih.nama_produk} bertambah ${jumlahDus} Dus.`);
+      
+      // Reset Form
+      setSelectedMerk('');
+      setSelectedProdukKode('');
+      setSelectedPaketId('');
+      setJumlahDus('1');
+      setSupplier('');
+      
+      // Refresh Data Master (Supaya stok di memori update)
+      const { data: refreshData } = await supabase.from('master_sepatu').select('*');
+      if(refreshData) setMasterSepatuList(refreshData);
+
+    } catch (err) {
+      alert("Gagal menyimpan: " + err.message);
+    }
     
-    // Reset
-    setSelectedMerkId('');
-    setSelectedProdukId('');
-    setSelectedPaketId('');
-    setJumlahDus('1');
-    setSupplier('');
+    setLoading(false);
   };
 
   return (
     <div className="form-container">
-      <h3>Form Transaksi Sepatu Masuk (Grosir)</h3>
+      <h3>📥 Form Transaksi Sepatu Masuk (Grosir)</h3>
       
       <form onSubmit={handleSubmit}>
 
         {/* 1. PILIH MERK */}
         <div className="form-group">
-          <label htmlFor="merk">Merk</label>
+          <label htmlFor="merk">Merk / Brand</label>
           <select
             id="merk"
-            value={selectedMerkId}
+            value={selectedMerk}
             onChange={handleMerkChange}
             required
           >
             <option value="" disabled>-- Pilih Merk --</option>
-            {mockMerkList.map(merk => (
-              <option key={merk.id} value={merk.id}>
-                {merk.nama}
+            {merkListUnik.map((merk, index) => (
+              <option key={index} value={merk}>
+                {merk}
               </option>
             ))}
           </select>
         </div>
 
-        {/* 2. DROPDOWN KODE BARANG (Baru) */}
+        {/* 2. DROPDOWN KODE BARANG */}
         <div className="form-group">
           <label htmlFor="kodeBarang">Kode Barang (SKU)</label>
           <select
             id="kodeBarang"
-            value={selectedProdukId}
-            // Mengubah Kode otomatis mengubah Nama juga (karena pakai ID yang sama)
-            onChange={(e) => setSelectedProdukId(e.target.value)}
+            value={selectedProdukKode}
+            onChange={(e) => setSelectedProdukKode(e.target.value)}
             required
-            disabled={!selectedMerkId}
-            style={{ fontFamily: 'monospace', fontWeight: 'bold' }} // Style kode
+            disabled={!selectedMerk}
+            style={{ fontFamily: 'monospace', fontWeight: 'bold' }}
           >
             <option value="" disabled>-- Pilih Kode --</option>
             {filteredProdukList.map(produk => (
-              <option key={produk.id} value={produk.id}>
-                {produk.kode}
+              <option key={produk.kode_barang} value={produk.kode_barang}>
+                {produk.kode_barang}
               </option>
             ))}
           </select>
@@ -123,16 +168,15 @@ function TransactionForm() {
           <label htmlFor="namaProduk">Nama Produk</label>
           <select
             id="namaProduk"
-            value={selectedProdukId}
-            // Mengubah Nama otomatis mengubah Kode juga
-            onChange={(e) => setSelectedProdukId(e.target.value)}
+            value={selectedProdukKode} // Value-nya sama: Kode Barang
+            onChange={(e) => setSelectedProdukKode(e.target.value)}
             required
-            disabled={!selectedMerkId}
+            disabled={!selectedMerk}
           >
             <option value="" disabled>-- Pilih Nama Produk --</option>
             {filteredProdukList.map(produk => (
-              <option key={produk.id} value={produk.id}>
-                {produk.nama}
+              <option key={produk.kode_barang} value={produk.kode_barang}>
+                {produk.nama_produk}
               </option>
             ))}
           </select>
@@ -148,9 +192,9 @@ function TransactionForm() {
             required
           >
             <option value="" disabled>-- Pilih paket grosir --</option>
-            {mockPaketList.map(paket => (
+            {paketList.map(paket => (
               <option key={paket.id} value={paket.id}>
-                {paket.nama}
+                {paket.nama_paket} (Isi {paket.total_qty} psg)
               </option>
             ))}
           </select>
@@ -175,15 +219,20 @@ function TransactionForm() {
           <input
             type="text"
             id="supplier"
-            placeholder="Nama supplier..."
+            placeholder="Contoh: PT. Sepatu Jaya"
             value={supplier}
             onChange={(e) => setSupplier(e.target.value)}
             required
           />
         </div>
 
-        <button type="submit" className="submit-button">
-          Simpan Transaksi
+        <button 
+          type="submit" 
+          className="submit-button" 
+          disabled={loading}
+          style={{ opacity: loading ? 0.7 : 1 }}
+        >
+          {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
         </button>
       </form>
     </div>

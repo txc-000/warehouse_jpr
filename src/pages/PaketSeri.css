@@ -154,3 +154,82 @@
 .btn-simpan-paket:hover {
   background-color: #1d4ed8;
 }
+
+/* --- CSS TAMBAHAN UNTUK RIWAYAT PAKET --- */
+
+.riwayat-section {
+  margin-top: 40px;
+  border-top: 2px dashed #cbd5e1;
+  padding-top: 30px;
+}
+
+.grid-paket {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsif */
+  gap: 20px;
+}
+
+.card-paket {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+  transition: transform 0.2s;
+}
+
+.card-paket:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  border-color: #3b82f6;
+}
+
+.card-paket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.nama-paket-title {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
+.btn-hapus-paket {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.btn-hapus-paket:hover {
+  color: #b91c1c;
+}
+
+.info-total {
+  background: #f1f5f9;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+  color: #334155;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.rincian-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-ukuran {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  border: 1px solid #bfdbfe;
+}

@@ -1,172 +1,211 @@
-import React, { useState, useMemo } from 'react';
-import SepatuMasterModal from '../components/SepatuMasterModal.jsx'; 
-import './EditTransaksiPage.css'; // Style tabel
-import './Dashboard.css'; // Style search bar
+import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '../supabaseClient';
+import SepatuMasterModal from '../components/SepatuMasterModal'; 
+import './Dashboard.css'; // Untuk style search bar
 
-// --- SAKLAR ROLE (UNTUK SIMULASI) ---
-const currentUserRole = 'pemilik'; 
-// ------------------------------------
-
-// Data Dummy (Pastikan ada properti kode/kodeSepatu)
-const initialData = [
-  { id: 1, kodeSepatu: 'AF1-001', namaSepatu: 'Air Force 1 \'07', brand: 'Nike', harga: 1500000 },
-  { id: 2, kodeSepatu: 'ADS-SMBA', namaSepatu: 'Samba OG', brand: 'Adidas', harga: 1850000 },
-  { id: 3, kodeSepatu: 'NB-550', namaSepatu: '550', brand: 'New Balance', harga: 1799000 },
-];
-
-function SepatuMasterPage() {
-  const [sepatuList, setSepatuList] = useState(initialData);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSepatu, setSelectedSepatu] = useState(null);
+const SepatuMasterPage = () => {
+  const [stokBarang, setStokBarang] = useState([]);
+  const [loading, setLoading] = useState(false);
   
-  // State untuk pencarian
+  // State untuk Modal & Search
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null); 
   const [searchTerm, setSearchTerm] = useState('');
 
-  const formatRupiah = (angka) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency', currency: 'IDR', minimumFractionDigits: 0,
-    }).format(angka);
+  // 1. AMBIL DATA DARI SUPABASE (JOIN DENGAN PAKET_SERI)
+  useEffect(() => {
+    fetchStok();
+  }, []);
+
+  const fetchStok = async () => {
+    setLoading(true);
+    // Kita join dengan tabel paket_seri untuk mengambil nama paketnya
+    const { data, error } = await supabase
+      .from('master_sepatu')
+      .select('*, paket_seri(nama_paket)') 
+      .order('id', { ascending: true });
+    
+    if (error) console.log(error);
+    else setStokBarang(data || []);
+    
+    setLoading(false);
   };
 
-  const handleTambah = () => {
-    setSelectedSepatu(null);
+  // Buka Modal Tambah Baru
+  const handleOpenAdd = () => {
+    setEditingItem(null); 
     setIsModalOpen(true);
   };
 
-  const handleEdit = (sepatu) => {
-    setSelectedSepatu(sepatu);
+  // Buka Modal Edit
+  const handleOpenEdit = (item) => {
+    setEditingItem(item); 
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id) => {
-    if (currentUserRole !== 'pemilik') {
-      alert('Akses Ditolak: Hanya Pemilik yang dapat menghapus data master.');
-      return;
-    }
-    if (window.confirm('Yakin hapus data ini?')) {
-      setSepatuList(prev => prev.filter(item => item.id !== id));
-    }
-  };
+  // 2. SIMPAN DATA (CREATE / UPDATE)
+  const handleSaveData = async (formData) => {
+    setLoading(true);
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedSepatu(null);
-  };
+    if (editingItem) {
+      // --- LOGIKA UPDATE ---
+      const { error } = await supabase
+        .from('master_sepatu')
+        .update({
+          kode_barang: formData.kode_barang,
+          merk: formData.merk,
+          nama_produk: formData.nama_produk,
+          id_paket: formData.id_paket // Update Paket Seri juga
+        })
+        .eq('id', editingItem.id);
 
-  const handleSaveData = (formData) => {
-    if (selectedSepatu) {
-      setSepatuList(prev => prev.map(item => 
-        item.id === selectedSepatu.id ? { ...formData, id: item.id } : item
-      ));
+      if (error) alert("Gagal update: " + error.message);
+      else alert("Data berhasil diperbarui!");
+
     } else {
-      const newId = sepatuList.length > 0 ? sepatuList[sepatuList.length - 1].id + 1 : 1;
-      setSepatuList(prev => [...prev, { ...formData, id: newId }]);
+      // --- LOGIKA TAMBAH BARU (INSERT) ---
+      // Cek kode barang kembar di state lokal
+      const cekKembar = stokBarang.find(b => b.kode_barang === formData.kode_barang);
+      if(cekKembar) {
+        alert("Kode Barang sudah ada!");
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('master_sepatu')
+        .insert([{
+            kode_barang: formData.kode_barang,
+            merk: formData.merk,
+            nama_produk: formData.nama_produk,
+            id_paket: formData.id_paket, // Simpan Paket Seri
+            stok: 0, 
+            harga_dus: 0 
+        }]);
+
+      if (error) alert("Gagal simpan: " + error.message);
+      else alert("Barang baru berhasil ditambahkan!");
     }
-    handleCloseModal();
+
+    setLoading(false);
+    setIsModalOpen(false); 
+    fetchStok(); // Refresh tabel
   };
 
-  // --- LOGIC PENCARIAN ---
+  // 3. LOGIC PENCARIAN
   const filteredData = useMemo(() => {
-    return sepatuList.filter(item => {
+    return stokBarang.filter(item => {
       const term = searchTerm.toLowerCase();
+      const namaPaket = item.paket_seri?.nama_paket?.toLowerCase() || '';
+      
       return (
-        item.namaSepatu.toLowerCase().includes(term) ||
-        item.brand.toLowerCase().includes(term) ||
-        item.kodeSepatu.toLowerCase().includes(term)
+        item.nama_produk?.toLowerCase().includes(term) ||
+        item.merk?.toLowerCase().includes(term) ||
+        item.kode_barang?.toLowerCase().includes(term) ||
+        namaPaket.includes(term)
       );
     });
-  }, [sepatuList, searchTerm]);
+  }, [stokBarang, searchTerm]);
 
   return (
     <div className="dashboard-content">
       <header className="dashboard-header">
-        <h1>Pengelolaan Data Sepatu Master</h1>
-        <p>Kelola data induk sepatu. {currentUserRole === 'pemilik' ? <strong>(Mode Pemilik: Full Akses)</strong> : '(Mode Admin: Harga View-Only)'}</p>
+        <h1>📦 Data Master Sepatu</h1>
+        <p>Kelola data induk sepatu (Kode, Nama, Merk, & Seri Ukuran).</p>
       </header>
 
-      {/* --- FILTER & TOMBOL TAMBAH --- */}
-      <div className="filter-container" style={{ display: 'flex', gap: '15px', marginBottom: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+      {/* --- TOOLBAR: SEARCH & ADD BUTTON --- */}
+      <div className="filter-container" style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap', justifyContent:'space-between' }}>
         
-        {/* Tombol Tambah */}
-        <button className="button-cetak" onClick={handleTambah} style={{ margin: 0 }}>
-          + Tambah Sepatu Master
-        </button>
-
         {/* Input Pencarian */}
         <input 
           type="text" 
-          placeholder="🔍 Cari ID, nama sepatu, atau brand..." 
+          placeholder="🔍 Cari Kode, Merk, atau Seri Ukuran..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
           style={{ 
-            padding: '10px 15px', 
+            padding: '12px 15px', 
             borderRadius: '8px', 
             border: '1px solid #ddd', 
             flex: 1, 
-            minWidth: '250px' 
+            minWidth: '250px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
           }}
         />
+
+        {/* Tombol Tambah */}
+        <button 
+            onClick={handleOpenAdd}
+            className="button-cetak" // Pakai class yg sudah ada biar biru cantik
+            style={{ margin: 0, display:'flex', alignItems:'center', gap:'5px' }}>
+            + Tambah Data Master
+        </button>
       </div>
 
-      <div className="tabel-container-full">
-        <table>
-          <thead>
-            <tr>
-              <th>ID Barang</th> {/* KONSISTENSI NAMA KOLOM */}
-              <th>Nama Sepatu</th>
-              <th>Brand</th>
-              <th>Harga (Display)</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.length > 0 ? (
-              filteredData.map(item => (
-                <tr key={item.id}>
-                  {/* ID BARANG (Style Monospace) */}
-                  <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
-                    {item.kodeSepatu}
-                  </td>
-                  
-                  <td>{item.namaSepatu}</td>
-                  <td>{item.brand}</td>
-                  
-                  <td style={{ fontWeight: 'bold', color: '#28a745' }}>
-                    {formatRupiah(item.harga)}
-                  </td>
-                  
-                  <td>
-                    <button className="edit-button" onClick={() => handleEdit(item)}>
-                      Edit
-                    </button>
-                    <button className="delete-button" onClick={() => handleDelete(item.id)}>
-                      Hapus
-                    </button>
+      {/* Tabel Stok */}
+      <div style={{ marginTop: '20px', background: 'white', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
+        {loading ? <p style={{padding:20}}>Sedang memuat data...</p> : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', color: '#64748b', textAlign: 'left', fontSize:'0.9rem' }}>
+                <th style={{padding: '12px'}}>Kode</th>
+                <th style={{padding: '12px'}}>Merk</th>
+                <th style={{padding: '12px'}}>Produk</th>
+                <th style={{padding: '12px'}}>Ukuran / Seri</th> {/* KOLOM BARU */}
+                <th style={{padding: '12px'}}>Stok Gudang</th>
+                <th style={{padding: '12px'}}>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.length > 0 ? (
+                filteredData.map((item) => (
+                  <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{padding: '12px', fontFamily: 'monospace', fontWeight: 'bold', color:'#555'}}>{item.kode_barang}</td>
+                    <td style={{padding: '12px'}}>{item.merk}</td>
+                    <td style={{padding: '12px', fontWeight:'500'}}>{item.nama_produk}</td>
+                    
+                    {/* Tampilkan Nama Paket Seri */}
+                    <td style={{padding: '12px', color:'#666', fontSize:'0.9rem'}}>
+                      {item.paket_seri?.nama_paket || <span style={{color:'#e74c3c', fontSize:'0.8rem'}}>Belum diatur</span>}
+                    </td>
+
+                    <td style={{padding: '12px', fontWeight:'bold'}}>
+                      {item.stok} <span style={{fontSize:'0.8rem', fontWeight:'normal', color:'#888'}}>Dus</span>
+                    </td>
+                    
+                    <td style={{padding: '12px'}}>
+                        <button 
+                            onClick={() => handleOpenEdit(item)}
+                            style={{color:'#3b82f6', background:'none', border:'none', cursor:'pointer', fontWeight:'bold'}}>
+                            Edit Info
+                        </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#999' }}>
+                    Data tidak ditemukan.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '30px', color: '#999' }}>
-                  Data sepatu tidak ditemukan.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
 
+      {/* --- MODAL KOMPONEN --- */}
       {isModalOpen && (
         <SepatuMasterModal 
-          onClose={handleCloseModal}
-          onSave={handleSaveData}
-          initialData={selectedSepatu}
-          userRole={currentUserRole} 
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveData}
+            initialData={editingItem}
         />
       )}
+
     </div>
   );
-}
+};
 
 export default SepatuMasterPage;

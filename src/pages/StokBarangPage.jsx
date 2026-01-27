@@ -1,71 +1,56 @@
-import React, { useState, useMemo } from 'react';
-import './EditTransaksiPage.css'; // Pakai style tabel yang sudah ada
-import './Dashboard.css'; // Untuk search bar style
-
-// --- SIMULASI DATA GABUNGAN (STOK + HARGA + ID + UKURAN) ---
-const dataStokDisplay = [
-  { 
-    id: 1, 
-    kode: 'NK-AF1-001', // DATA BARU: ID Barang
-    merk: 'Nike', 
-    namaProduk: 'Air Force 1 \'07', 
-    namaPaket: 'Seri 38-42 (Isi 12)', 
-    ukuran: '38 - 42', // DATA BARU: Ukuran
-    totalStok: 8, // Sisa stok dus
-    harga: 1500000 
-  },
-  { 
-    id: 2, 
-    kode: 'AD-SMB-002', 
-    merk: 'Adidas', 
-    namaProduk: 'Samba OG', 
-    namaPaket: 'Seri 38-42 (Isi 12)', 
-    ukuran: '38 - 42',
-    totalStok: 15, 
-    harga: 1850000 
-  },
-  { 
-    id: 3, 
-    kode: 'NB-550-003', 
-    merk: 'New Balance', 
-    namaProduk: '550', 
-    namaPaket: 'Seri Anak A (Isi 20)', 
-    ukuran: 'Anak (30-35)',
-    totalStok: 20, 
-    harga: 1799000 
-  },
-  { 
-    id: 4, 
-    kode: 'VN-OLD-004', 
-    merk: 'Vans', 
-    namaProduk: 'Old Skool', 
-    namaPaket: 'Seri 40-44 (Isi 12)', 
-    ukuran: '40 - 44',
-    totalStok: 5, 
-    harga: 900000 
-  },
-];
+import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '../supabaseClient';
+import './EditTransaksiPage.css'; // Menggunakan style tabel yang sudah ada
+import './Dashboard.css'; // Untuk style search bar
 
 function StokBarangPage() {
-  const [stokList] = useState(dataStokDisplay);
-  const [searchTerm, setSearchTerm] = useState(''); // State untuk search
+  const [stokList, setStokList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); 
+
+  // 1. AMBIL DATA REALTIME DARI SUPABASE (JOIN TABLE)
+  useEffect(() => {
+    fetchStok();
+  }, []);
+
+  const fetchStok = async () => {
+    setLoading(true);
+    
+    // PENTING: Kita menggunakan query select('*, paket_seri(nama_paket)')
+    // Ini artinya: Ambil semua data sepatu DAN ambil nama_paket dari tabel paket_seri yang terhubung
+    const { data, error } = await supabase
+      .from('master_sepatu')
+      .select('*, paket_seri(nama_paket)') 
+      .order('stok', { ascending: true }); // Stok paling dikit di atas
+
+    if (error) {
+      console.log("Error mengambil data stok:", error.message);
+    } else {
+      setStokList(data || []);
+    }
+    
+    setLoading(false);
+  };
 
   // Helper: Format Rupiah
   const formatRupiah = (angka) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency', currency: 'IDR', minimumFractionDigits: 0
-    }).format(angka);
+    }).format(angka || 0);
   };
 
-  // Logic Pencarian
+  // Logic Pencarian (Filter)
   const filteredData = useMemo(() => {
     return stokList.filter(item => {
       const term = searchTerm.toLowerCase();
+      // Ambil nama paket dari relasi (jaga-jaga kalau null)
+      const namaPaket = item.paket_seri?.nama_paket?.toLowerCase() || '';
+      
       return (
-        item.namaProduk.toLowerCase().includes(term) ||
-        item.merk.toLowerCase().includes(term) ||
-        item.kode.toLowerCase().includes(term) ||
-        item.ukuran.toLowerCase().includes(term)
+        item.nama_produk?.toLowerCase().includes(term) ||
+        item.merk?.toLowerCase().includes(term) ||
+        item.kode_barang?.toLowerCase().includes(term) ||
+        namaPaket.includes(term) // Sekarang bisa cari nama paket juga!
       );
     });
   }, [stokList, searchTerm]);
@@ -74,14 +59,14 @@ function StokBarangPage() {
     <div className="dashboard-content">
       <header className="dashboard-header">
         <h1>Informasi Stok & Harga Barang</h1>
-        <p>Daftar lengkap ketersediaan barang beserta harga display.</p>
+        <p>Monitor ketersediaan stok gudang, varian ukuran, dan harga display saat ini.</p>
       </header>
 
       {/* --- FITUR PENCARIAN (SEARCH) --- */}
       <div className="filter-container" style={{ display: 'flex', marginBottom: '20px' }}>
         <input 
           type="text" 
-          placeholder="🔍 Cari ID barang, nama, merk, atau ukuran..." 
+          placeholder="🔍 Cari ID, nama, merk, atau seri ukuran..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -97,63 +82,79 @@ function StokBarangPage() {
       </div>
 
       <div className="tabel-container-full">
-        <table>
-          <thead>
-            <tr>
-              <th>ID Barang</th> {/* KOLOM BARU */}
-              <th>Merk</th>
-              <th>Nama Produk</th>
-              <th>Paket Seri</th>
-              <th>Ukuran</th> {/* KOLOM BARU */}
-              <th style={{textAlign: 'center'}}>Sisa Stok (Dus)</th>
-              <th style={{textAlign: 'right'}}>Harga Display</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.length > 0 ? (
-              filteredData.map(item => (
-                <tr key={item.id}>
-                  
-                  {/* ID Barang (Monospace) */}
-                  <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
-                    {item.kode}
-                  </td>
+        {loading ? <p style={{padding:20, textAlign:'center'}}>Sedang memuat data stok...</p> : (
+          <table>
+            <thead>
+              <tr>
+                <th>ID Barang</th> 
+                <th>Merk</th>
+                <th>Nama Produk</th>
+                <th>Ukuran / Seri</th> {/* KOLOM BARU */}
+                <th style={{textAlign: 'center'}}>Sisa Stok (Dus)</th>
+                <th style={{textAlign: 'right'}}>Harga Display / Dus</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.length > 0 ? (
+                filteredData.map(item => (
+                  <tr key={item.id}>
+                    
+                    {/* ID Barang (Monospace) */}
+                    <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
+                      {item.kode_barang}
+                    </td>
 
-                  <td>{item.merk}</td>
-                  <td style={{fontWeight: '500'}}>{item.namaProduk}</td>
-                  <td style={{color: '#666', fontSize:'0.9rem'}}>{item.namaPaket}</td>
-                  
-                  {/* Kolom Ukuran */}
-                  <td style={{color: '#555', fontWeight: '500'}}>{item.ukuran}</td>
-                  
-                  {/* Kolom Stok dengan Warna Peringatan */}
-                  <td style={{textAlign: 'center', fontWeight: 'bold'}}>
-                    <span style={{
-                      color: item.totalStok < 10 ? '#d9534f' : '#28a745',
-                      backgroundColor: item.totalStok < 10 ? '#fff3cd' : 'transparent',
-                      padding: '4px 8px',
-                      borderRadius: '4px'
-                    }}>
-                      {item.totalStok} Dus
-                    </span>
-                    {item.totalStok < 10 && <div style={{fontSize: '0.7em', color: '#d9534f', marginTop:'2px'}}>Stok Menipis</div>}
-                  </td>
+                    <td>{item.merk}</td>
+                    <td style={{fontWeight: '500'}}>{item.nama_produk}</td>
+                    
+                    {/* Kolom Ukuran / Seri (Dari Relasi Tabel) */}
+                    <td style={{color: '#666', fontSize:'0.9rem'}}>
+                       {item.paket_seri?.nama_paket || '-'}
+                    </td>
+                    
+                    {/* Kolom Stok dengan Warna Peringatan */}
+                    <td style={{textAlign: 'center', fontWeight: 'bold'}}>
+                      <span style={{
+                        color: item.stok < 10 ? '#721c24' : '#155724', // Merah tua / Hijau tua text
+                        backgroundColor: item.stok < 10 ? '#f8d7da' : '#d4edda', // Merah muda / Hijau muda bg
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        fontSize: '0.9rem',
+                        display: 'inline-block',
+                        minWidth: '80px'
+                      }}>
+                        {item.stok} Dus
+                      </span>
+                      {/* Peringatan tambahan jika stok kritis */}
+                      {item.stok < 5 && (
+                        <div style={{
+                          fontSize: '0.75rem', 
+                          color: '#dc3545', 
+                          marginTop:'5px', 
+                          fontWeight:'bold',
+                          textTransform: 'uppercase'
+                        }}>
+                          ⚠️ Perlu Restock
+                        </div>
+                      )}
+                    </td>
 
-                  {/* Kolom Harga */}
-                  <td style={{textAlign: 'right', fontWeight: 'bold', color: '#007bff'}}>
-                    {formatRupiah(item.harga)}
+                    {/* Kolom Harga */}
+                    <td style={{textAlign: 'right', fontWeight: 'bold', color: '#007bff'}}>
+                      {item.harga_dus ? formatRupiah(item.harga_dus) : <span style={{color:'#999', fontSize:'0.8rem'}}>Belum set harga</span>}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#999' }}>
+                    Data barang tidak ditemukan.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#999' }}>
-                  Barang tidak ditemukan.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

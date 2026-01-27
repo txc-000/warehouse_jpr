@@ -1,28 +1,34 @@
-/* --- LAYOUT UTAMA --- */
+/* Sidebar.css - Versi Full & Elegan */
+
+/* --- LAYOUT UTAMA SIDEBAR --- */
 .sidebar {
-  width: 260px; /* Sedikit lebih ramping agar elegan */
+  width: 260px; 
   height: 100vh;
   background-color: #ffffff;
   border-right: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
+  position: fixed; /* Terkunci di kiri layar */
+  left: 0;
+  top: 0;
+  z-index: 1000;
   font-family: 'Inter', sans-serif;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02);
 }
 
-/* --- HEADER --- */
+/* --- HEADER LOGO --- */
 .sidebar-header {
   padding: 24px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid #f8fafc; /* Garis sangat halus */
+  border-bottom: 1px solid #f8fafc;
   flex-shrink: 0;
 }
 
 .logo-box {
   width: 36px;
   height: 36px;
-  /* Gradient Biru Modern */
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   border-radius: 8px;
   display: flex;
@@ -43,10 +49,10 @@
 .sidebar-menu-wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 16px; /* Padding atas bawah lega */
+  padding: 24px 16px;
 }
 
-/* Scrollbar halus */
+/* Custom Scrollbar untuk Sidebar */
 .sidebar-menu-wrapper::-webkit-scrollbar {
   width: 4px;
 }
@@ -55,11 +61,11 @@
   border-radius: 10px;
 }
 
-/* Label Group */
+/* Label Group (MENU UTAMA, ADMINISTRASI, dll) */
 .menu-label {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8; /* Abu-abu soft */
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 8px;
@@ -67,7 +73,7 @@
   margin-top: 16px;
 }
 
-/* --- ITEM NAVIGASI (Clean - Tanpa Icon) --- */
+/* --- ITEM NAVIGASI --- */
 .nav-item {
   display: flex;
   align-items: center;
@@ -87,14 +93,14 @@
   color: #1e293b;
 }
 
-/* Active State (Gaya Minimalis) */
+/* Active State (Halaman yang sedang dibuka) */
 .nav-item.active {
   background-color: #eff6ff;
   color: #2563eb;
   font-weight: 600;
 }
 
-/* --- DROPDOWN MODERN --- */
+/* --- DROPDOWN STYLE --- */
 .dropdown-container {
   margin-bottom: 4px;
 }
@@ -122,7 +128,7 @@
   font-weight: 600;
 }
 
-/* Animasi Chevron */
+/* Animasi Chevron (Panah) */
 .chevron {
   transition: transform 0.2s ease;
   color: #cbd5e1;
@@ -133,24 +139,24 @@
   color: #64748b;
 }
 
-/* Konten Dropdown */
+/* Konten di dalam Dropdown */
 .dropdown-content {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
+  background-color: #ffffff;
 }
 
 .dropdown-content.show {
-  max-height: 500px;
+  max-height: 500px; /* Batas tinggi saat terbuka */
 }
 
-/* Sub-item di dalam dropdown */
+/* Sub-item Navigasi di dalam Dropdown */
 .dropdown-content .nav-item {
   font-size: 13.5px;
-  padding: 8px 12px 8px 24px; /* Padding kiri lebih besar untuk indentasi */
+  padding: 8px 12px 8px 24px; /* Indentasi agar menjorok ke dalam */
   color: #64748b;
-  margin-left: 0; 
-  border-radius: 6px;
+  background-color: transparent;
 }
 
 .dropdown-content .nav-item:hover {
@@ -159,7 +165,7 @@
 
 .dropdown-content .nav-item.active {
   color: #2563eb;
-  background-color: transparent; /* Sub-item aktif transparan tapi teks biru */
+  background-color: #f0f7ff;
 }
 
 /* --- FOOTER LOGOUT --- */
@@ -172,12 +178,12 @@
 .logout-btn {
   width: 100%;
   padding: 10px;
-  border: 1px solid #f1f5f9; /* Border sangat halus */
+  border: 1px solid #f1f5f9;
   background-color: #fff;
-  color: #ef4444; /* Merah */
+  color: #ef4444; /* Merah kalem */
   border-radius: 6px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 13px;
   transition: all 0.2s;
 }
@@ -185,4 +191,5 @@
 .logout-btn:hover {
   background-color: #fef2f2;
   border-color: #fee2e2;
+  transform: translateY(-1px);
 }

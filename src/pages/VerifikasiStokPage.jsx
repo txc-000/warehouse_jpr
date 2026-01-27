@@ -1,137 +1,210 @@
-import React, { useState } from 'react';
-// Kita pakai ulang CSS tabel dari halaman sebelumnya
-import './EditTransaksiPage.css'; 
-// Kita tetap pakai file CSS ini, style-nya masih berguna
-import './VerifikasiStok.css'; 
-
-// --- SIMULASI DATA (VERSI GROSIR PER DUS + ID BARANG) ---
-const stokPerDus = [
-  { 
-    id: 1, 
-    kode: 'NK-AF1-001', // DATA BARU: ID Barang
-    namaProduk: 'Air Force 1 \'07', 
-    namaPaket: 'Seri 38-42 (Isi 12)', 
-    stokSistem: 10, 
-    stokFisik: 10 
-  },
-  { 
-    id: 2, 
-    kode: 'NK-AF1-002', 
-    namaProduk: 'Air Force 1 \'07', 
-    namaPaket: 'Seri 39-43 (Isi 12)', 
-    stokSistem: 8, 
-    stokFisik: 8 
-  },
-  { 
-    id: 3, 
-    kode: 'AD-SMB-002', 
-    namaProduk: 'Samba OG', 
-    namaPaket: 'Seri 38-42 (Isi 12)', 
-    stokSistem: 15, 
-    stokFisik: 15 
-  },
-  { 
-    id: 4, 
-    kode: 'NB-550-003', 
-    namaProduk: '550', 
-    namaPaket: 'Seri Anak A (Isi 20)', 
-    stokSistem: 20, 
-    stokFisik: 20 
-  },
-];
-
-// --- KOMPONEN HALAMAN (VERSI STOCK OPNAME PER DUS) ---
+import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '../supabaseClient';
+import './EditTransaksiPage.css'; // Kita pinjam style tabel yang sudah rapi
+import './Dashboard.css'; // Untuk Search bar
 
 function VerifikasiStokPage() {
-  const [daftarStok, setDaftarStok] = useState(stokPerDus);
+  const [daftarStok, setDaftarStok] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // State untuk menyimpan inputan Stok Fisik user
+  // Format: { id_barang: jumlah_fisik, ... }
+  const [stokFisikInput, setStokFisikInput] = useState({});
 
-  // Fungsi mengubah stok fisik
-  const handleStokFisikChange = (id, newValue) => {
-    const nilai = Math.max(0, Number(newValue)); 
-    setDaftarStok(prevStok =>
-      prevStok.map(item =>
-        item.id === id ? { ...item, stokFisik: nilai } : item
-      )
-    );
+  // 1. AMBIL DATA STOK DARI DB
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('master_sepatu')
+      .select('*')
+      .order('kode_barang', { ascending: true });
+
+    if (error) console.log("Error:", error.message);
+    else {
+      setDaftarStok(data || []);
+      // Reset input fisik setiap kali data di-refresh
+      setStokFisikInput({});
+    }
+    setLoading(false);
   };
 
-  // Fungsi penyesuaian (simulasi)
-  const handleSesuaikan = (item) => {
-    const selisih = item.stokFisik - item.stokSistem;
-    
-    alert(`Akan dilakukan penyesuaian untuk ID: ${item.kode}\nProduk: ${item.namaProduk} (${item.namaPaket}). \nSelisih: ${selisih} DUS. \n\n(Langkah selanjutnya adalah membuka modal untuk alasan)`);
-    
-    setDaftarStok(prevStok =>
-      prevStok.map(i =>
-        i.id === item.id ? { ...i, stokSistem: item.stokFisik } : i
-      )
-    );
+  // 2. HANDLE PERUBAHAN INPUT FISIK
+  const handleFisikChange = (id, value) => {
+    setStokFisikInput(prev => ({
+      ...prev,
+      [id]: value
+    }));
   };
+
+  // 3. FUNGSI EKSEKUSI PENYESUAIAN (UPDATE DB)
+  const handleSesuaikan = async (item, selisih, stokFisikBaru) => {
+    // Validasi keamanan
+    const confirmMsg = `⚠️ KONFIRMASI STOCK OPNAME\n\n` +
+      `Barang: ${item.nama_produk}\n` +
+      `Stok Sistem: ${item.stok}\n` +
+      `Stok Fisik: ${stokFisikBaru}\n` +
+      `Selisih: ${selisih > 0 ? '+' : ''}${selisih}\n\n` +
+      `Sistem akan mengupdate stok menjadi ${stokFisikBaru}. Lanjutkan?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      // Update stok di master_sepatu
+      const { error } = await supabase
+        .from('master_sepatu')
+        .update({ stok: parseInt(stokFisikBaru) })
+        .eq('id', item.id);
+
+      if (error) throw error;
+
+      alert("✅ Stok berhasil disesuaikan!");
+      fetchData(); // Refresh tabel
+
+    } catch (err) {
+      alert("Gagal update: " + err.message);
+    }
+  };
+
+  // --- LOGIC PENCARIAN ---
+  const filteredData = useMemo(() => {
+    return daftarStok.filter(item => {
+      const term = searchTerm.toLowerCase();
+      return (
+        item.nama_produk?.toLowerCase().includes(term) ||
+        item.merk?.toLowerCase().includes(term) ||
+        item.kode_barang?.toLowerCase().includes(term)
+      );
+    });
+  }, [daftarStok, searchTerm]);
 
   return (
     <div className="dashboard-content">
       <header className="dashboard-header">
-        <h1>Penyesuaian Stok (Stock Opname)</h1>
-        <p>Bandingkan stok sistem dengan stok fisik di gudang.</p>
+        <h1>📊 Verifikasi Stok (Stock Opname)</h1>
+        <p>Lakukan pengecekan rutin untuk memastikan stok sistem sesuai dengan fisik gudang.</p>
       </header>
 
+      {/* --- PENCARIAN --- */}
+      <div className="filter-container" style={{ display: 'flex', marginBottom: '20px' }}>
+        <input 
+          type="text" 
+          placeholder="🔍 Cari ID barang, nama, atau merk..." 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+          style={{ 
+            padding: '12px 15px', 
+            borderRadius: '8px', 
+            border: '1px solid #ddd', 
+            width: '100%',
+            maxWidth: '500px'
+          }}
+        />
+      </div>
+
       <div className="tabel-container-full">
-        <table>
-          <thead>
-            <tr>
-              <th>ID Barang</th> {/* KOLOM BARU */}
-              <th>Nama Produk</th>
-              <th>Nama Paket Seri</th>
-              <th>Stok Sistem (Dus)</th>
-              <th>Stok Fisik (Dus)</th>
-              <th>Selisih (Dus)</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {daftarStok.map(item => {
-              const selisih = item.stokFisik - item.stokSistem;
-              
-              return (
-                <tr key={item.id} className={selisih !== 0 ? 'row-warning' : ''}>
+        {loading ? <p style={{padding:20}}>Memuat data stok...</p> : (
+          <table>
+            <thead>
+              <tr>
+                <th>Kode Barang</th>
+                <th>Info Produk</th>
+                <th style={{textAlign: 'center', background:'#f8fafc'}}>Stok Sistem</th>
+                <th style={{textAlign: 'center', background:'#fff7ed'}}>Stok Fisik</th>
+                <th style={{textAlign: 'center'}}>Selisih</th>
+                <th style={{textAlign: 'center'}}>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.length > 0 ? (
+                filteredData.map(item => {
+                  // Logika menghitung selisih
+                  // Jika user belum ngetik, anggap stok fisik = stok sistem (selisih 0)
+                  const inputVal = stokFisikInput[item.id];
+                  const stokFisik = inputVal !== undefined ? parseInt(inputVal) : item.stok;
+                  const selisih = stokFisik - item.stok;
                   
-                  {/* DATA BARU: Menampilkan ID Barang */}
-                  <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
-                    {item.kode}
-                  </td>
+                  // Warna baris jika ada selisih
+                  const isBeda = selisih !== 0;
 
-                  <td>{item.namaProduk}</td>
-                  <td>{item.namaPaket}</td>
-                  <td>{item.stokSistem}</td>
-                  
-                  <td>
-                    <input 
-                      type="number"
-                      className="stok-fisik-input"
-                      value={item.stokFisik}
-                      onChange={(e) => handleStokFisikChange(item.id, e.target.value)}
-                    />
-                  </td>
-                  
-                  <td style={{ fontWeight: 'bold', color: selisih !== 0 ? '#d9534f' : '#28a745' }}>
-                    {selisih}
-                  </td>
+                  return (
+                    <tr key={item.id} style={{ backgroundColor: isBeda ? '#fff5f5' : 'white' }}>
+                      
+                      {/* ID BARANG */}
+                      <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
+                        {item.kode_barang}
+                      </td>
 
-                  <td>
-                    {selisih !== 0 && (
-                      <button 
-                        className="edit-button" 
-                        onClick={() => handleSesuaikan(item)}
-                      >
-                        Sesuaikan
-                      </button>
-                    )}
+                      {/* Info Produk */}
+                      <td>
+                        <strong>{item.merk}</strong>
+                        <div style={{fontSize: '13px', color: '#444'}}>{item.nama_produk}</div>
+                      </td>
+
+                      {/* Stok Sistem (Read Only) */}
+                      <td style={{textAlign: 'center', fontSize:'1.1rem', fontWeight:'bold', color:'#334155'}}>
+                        {item.stok}
+                      </td>
+                      
+                      {/* Input Stok Fisik */}
+                      <td style={{textAlign: 'center'}}>
+                        <input 
+                          type="number"
+                          value={inputVal !== undefined ? inputVal : item.stok}
+                          onChange={(e) => handleFisikChange(item.id, e.target.value)}
+                          style={{
+                            width: '80px',
+                            padding: '8px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            border: '2px solid #cbd5e1',
+                            borderRadius: '6px',
+                            backgroundColor: '#fff7ed', // Sedikit oranye biar highlight
+                            color: '#ea580c'
+                          }}
+                        />
+                      </td>
+                      
+                      {/* Kolom Selisih */}
+                      <td style={{ 
+                          textAlign: 'center', 
+                          fontWeight: 'bold', 
+                          color: selisih === 0 ? '#10b981' : (selisih < 0 ? '#ef4444' : '#3b82f6') 
+                        }}>
+                        {selisih > 0 ? `+${selisih}` : selisih}
+                      </td>
+
+                      {/* Tombol Aksi */}
+                      <td style={{textAlign: 'center'}}>
+                        {isBeda && (
+                          <button 
+                            className="edit-button" 
+                            style={{ margin: '0 auto', display:'block', background: '#ef4444', border:'none', color:'white' }}
+                            onClick={() => handleSesuaikan(item, selisih, stokFisik)}
+                          >
+                            Sesuaikan
+                          </button>
+                        )}
+                        {!isBeda && <span style={{color:'#94a3b8', fontSize:'0.85rem'}}>✓ Sesuai</span>}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#999' }}>
+                    Data tidak ditemukan.
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

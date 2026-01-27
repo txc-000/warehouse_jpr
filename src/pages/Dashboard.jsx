@@ -1,52 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './Dashboard.css'; // File CSS Anda yang sudah ada
-import './EditTransaksiPage.css'; // Kita pakai ulang style tabel
-
-// --- SIMULASI 3 TRANSAKSI MASUK TERAKHIR (DENGAN ID BARANG) ---
-const transaksiTerakhir = [
-  { 
-    id: 1, 
-    kode: 'NK-RUN-005', // DATA BARU
-    merk: 'Nike', 
-    namaProduk: 'Sepatu Lari Model X', 
-    namaPaket: 'Seri 38-42 (Isi 12)', 
-    jumlahDus: 10, 
-    supplier: 'Supplier A' 
-  },
-  { 
-    id: 2, 
-    kode: 'AD-SDL-006', 
-    merk: 'Adidas', 
-    namaProduk: 'Sandal Model Y', 
-    namaPaket: 'Seri Anak A (Isi 20)', 
-    jumlahDus: 5, 
-    supplier: 'Supplier B' 
-  },
-  { 
-    id: 3, 
-    kode: 'NK-RUN-005', 
-    merk: 'Nike', 
-    namaProduk: 'Sepatu Lari Model X', 
-    namaPaket: 'Seri 39-43 (Isi 12)', 
-    jumlahDus: 8, 
-    supplier: 'Supplier A' 
-  },
-];
+import { supabase } from '../supabaseClient'; // Pastikan path import benar
+import './Dashboard.css'; 
 
 function DashboardAdminMasuk() {
+  const [transaksi, setTransaksi] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // LOGIKA: Ambil data asli dari Database Supabase
+  useEffect(() => {
+    fetchTransaksiTerakhir();
+  }, []);
+
+  const fetchTransaksiTerakhir = async () => {
+    try {
+      setLoading(true);
+      // Mengambil 5 transaksi terbaru dari tabel transaksi_masuk
+      const { data, error } = await supabase
+        .from('transaksi_masuk')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      setTransaksi(data || []);
+    } catch (error) {
+      console.error('Error fetching data:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="dashboard-content">
-      
       <header className="dashboard-header">
         <h1>Dashboard Admin Barang Masuk</h1>
         <p>Pintasan untuk mengelola data dan transaksi masuk.</p>
       </header>
 
-      {/* --- Bagian 1: Pintasan (Shortcut) --- */}
+      {/* --- Bagian 1: Pintasan (Sesuai dengan Route di App.jsx) --- */}
       <h3 className="dashboard-subtitle">Pintasan Utama</h3>
       <div className="shortcut-grid">
-        <Link to="/sepatu-masuk" className="shortcut-card">
+        <Link to="/transaksi-masuk" className="shortcut-card">
           <h4>➕ Buat Transaksi Masuk</h4>
           <p>Catat dus barang yang baru masuk.</p>
         </Link>
@@ -58,46 +53,54 @@ function DashboardAdminMasuk() {
           <h4>📦 Kelola Paket Seri</h4>
           <p>Buat atau edit resep paket/dus.</p>
         </Link>
-        <Link to="/data-sepatu" className="shortcut-card">
+        <Link to="/sepatu-master" className="shortcut-card">
           <h4>👟 Kelola Master Sepatu</h4>
           <p>Tambah/edit data produk (merk, nama).</p>
         </Link>
       </div>
 
-      {/* --- Bagian 2: Transaksi Terakhir --- */}
+      {/* --- Bagian 2: Data Real-time dari Database --- */}
       <h3 className="dashboard-subtitle">Transaksi Masuk Terakhir</h3>
       <div className="tabel-container-full">
-        <table>
-          <thead>
-            <tr>
-              <th>ID Barang</th> {/* KOLOM BARU */}
-              <th>Merk</th>
-              <th>Nama Produk</th>
-              <th>Paket Seri</th>
-              <th>Jumlah Dus</th>
-              <th>Supplier</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transaksiTerakhir.map(item => (
-              <tr key={item.id}>
-                
-                {/* DATA BARU: ID Barang */}
-                <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
-                  {item.kode}
-                </td>
-
-                <td>{item.merk}</td>
-                <td>{item.namaProduk}</td>
-                <td>{item.namaPaket}</td>
-                <td style={{ fontWeight: 'bold' }}>{item.jumlahDus}</td>
-                <td>{item.supplier}</td>
+        {loading ? (
+          <p style={{ padding: '20px', textAlign: 'center' }}>Memuat data transaksi...</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>ID Barang</th>
+                <th>Merk</th>
+                <th>Nama Produk</th>
+                <th>Paket Seri</th>
+                <th>Jumlah Dus</th>
+                <th>Supplier</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transaksi.length > 0 ? (
+                transaksi.map((item) => (
+                  <tr key={item.id}>
+                    <td style={{ fontFamily: 'monospace', fontWeight: 'bold', color: '#555' }}>
+                      {item.kode_barang || item.kode}
+                    </td>
+                    <td>{item.merk}</td>
+                    <td>{item.nama_produk}</td>
+                    <td>{item.nama_paket}</td>
+                    <td style={{ fontWeight: 'bold' }}>{item.jumlah_dus}</td>
+                    <td>{item.supplier}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                    Belum ada data transaksi masuk.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
-
     </div>
   );
 }

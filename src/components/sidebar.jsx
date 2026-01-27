@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import './Sidebar.css';
+import { NavLink } from 'react-router-dom';
+import './Sidebar.css'; 
 
-// Komponen Item Navigasi (Clean - Tanpa Icon)
+// Komponen Item Navigasi
 const NavItem = ({ title, to }) => (
   <NavLink
     to={to}
+    // Menggunakan isActive dari NavLink untuk styling otomatis
     className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
   >
     <span className="nav-text">{title}</span>
   </NavLink>
 );
 
-// Komponen Dropdown
+// Komponen Dropdown untuk Menu Admin
 const NavDropdown = ({ title, items, isOpen, onToggle }) => {
   return (
     <div className="dropdown-container">
       <div className={`dropdown-header ${isOpen ? 'open' : ''}`} onClick={onToggle}>
         <span className="nav-text">{title}</span>
-        {/* Panah Chevron Rotasi */}
         <svg 
           className={`chevron ${isOpen ? 'rotate' : ''}`} 
           width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -35,47 +35,39 @@ const NavDropdown = ({ title, items, isOpen, onToggle }) => {
   );
 };
 
-function Sidebar() {
-  const navigate = useNavigate();
+function Sidebar({ role, onLogout }) {
+  // State untuk kontrol buka-tutup dropdown admin
+  const [openMasuk, setOpenMasuk] = useState(true);
+  const [openKeluar, setOpenKeluar] = useState(true);
 
-  // --- SETTING ROLE DISINI (Ganti untuk testing) ---
-  // Pilihan: 'pemilik', 'admin_masuk', 'admin_keluar'
-  const userRole = 'pemilik'; 
-  // -------------------------------------------------
+  // Normalisasi Role (Menangani huruf besar/kecil dan spasi dari database)
+  const userRole = role ? role.toLowerCase().trim() : '';
 
-  const [openMasuk, setOpenMasuk] = useState(false);
-  const [openKeluar, setOpenKeluar] = useState(false);
-
-  // Helper Logika Hak Akses
+  // Variabel Helper Izin Akses
   const isPemilik = userRole === 'pemilik';
-  const canAccessMasuk = userRole === 'pemilik' || userRole === 'admin_masuk';
-  const canAccessKeluar = userRole === 'pemilik' || userRole === 'admin_keluar';
+  const canAccessMasuk = isPemilik || userRole === 'admin_masuk' || userRole === 'admin barang masuk';
+  const canAccessKeluar = isPemilik || userRole === 'admin_keluar' || userRole === 'admin barang keluar';
 
-  const handleLogout = (e) => {
-    e.preventDefault();
-    navigate('/login');
-  };
-
+  // Daftar Menu Admin Masuk
   const adminMasukItems = [
-    { title: 'Dashboard', to: '/dashboard-admin-masuk' },
-    { title: 'Info Stok & Harga', to: '/info-stok' },
-    { title: 'Data Sepatu Master', to: '/data-sepatu' },
-    { title: 'Data Master Size', to: '/data-size' },
+    { title: 'Dashboard', to: '/dashboard' },
+    { title: 'Info Stok & Harga', to: '/stok-barang' },
+    { title: 'Data Sepatu Master', to: '/sepatu-master' },
     { title: 'Paket Seri', to: '/paket-seri' },
-    { title: 'Transaksi Masuk', to: '/sepatu-masuk' },
+    { title: 'Transaksi Masuk', to: '/transaksi-masuk' },
     { title: 'Edit Transaksi', to: '/edit-transaksi' },
   ];
 
+  // Daftar Menu Admin Keluar
   const adminKeluarItems = [
-    { title: 'Dashboard', to: '/dashboard-admin-keluar' },
-    { title: 'Info Stok & Harga', to: '/info-stok' },
-    { title: 'Transaksi Keluar', to: '/sepatu-keluar' },
+    { title: 'Dashboard', to: '/dashboard' },
+    { title: 'Info Stok & Harga', to: '/stok-barang' },
+    { title: 'Transaksi Keluar', to: '/transaksi-keluar' },
   ];
 
   return (
     <div className="sidebar">
-      
-      {/* HEADER LOGO */}
+      {/* --- HEADER LOGO --- */}
       <div className="sidebar-header">
         <div className="logo-box">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -86,20 +78,20 @@ function Sidebar() {
           </svg>
         </div>
         <div className="brand-text">
-          <h3>GudangApp</h3>
+          <h3>GudangSepatuku</h3>
         </div>
       </div>
       
-      {/* MENU WRAPPER */}
+      {/* --- MENU WRAPPER --- */}
       <div className="sidebar-menu-wrapper">
         
-        {/* 1. KHUSUS PEMILIK: MENU UTAMA LENGKAP */}
+        {/* 1. KHUSUS PEMILIK (Menu Utama) */}
         {isPemilik && (
           <div className="menu-group">
             <div className="menu-label">MENU UTAMA</div>
-            <NavItem title="Dashboard" to="/dashboard-pemilik" />
-            <NavItem title="Edit Harga" to="/atur-harga" />
-            <NavItem title="Info Stok & Harga" to="/info-stok" />
+            <NavItem title="Dashboard" to="/dashboard" />
+            <NavItem title="Edit Harga" to="/edit-harga" />
+            <NavItem title="Info Stok & Harga" to="/stok-barang" />
             <NavItem title="Verifikasi Stok" to="/verifikasi-stok" />
             <NavItem title="Laporan Stok" to="/laporan-stok" />
             <NavItem title="History Transaksi" to="/history" />
@@ -107,7 +99,7 @@ function Sidebar() {
           </div>
         )}
 
-        {/* 2. ADMIN SECTION (Dibungkus logika per role) */}
+        {/* 2. AREA ADMINISTRASI (Admin Masuk & Keluar) */}
         <div className="menu-group">
           {(canAccessMasuk || canAccessKeluar) && (
             <div className="menu-label">
@@ -115,7 +107,7 @@ function Sidebar() {
             </div>
           )}
           
-          {/* Dropdown Admin Masuk (Hanya Pemilik & Admin Masuk) */}
+          {/* Dropdown Admin Masuk */}
           {canAccessMasuk && (
             <NavDropdown 
               title="Admin Barang Masuk" 
@@ -125,7 +117,7 @@ function Sidebar() {
             />
           )}
 
-          {/* Dropdown Admin Keluar (Hanya Pemilik & Admin Keluar) */}
+          {/* Dropdown Admin Keluar */}
           {canAccessKeluar && (
             <NavDropdown 
               title="Admin Barang Keluar" 
@@ -135,13 +127,12 @@ function Sidebar() {
             />
           )}
         </div>
-        
       </div> 
       
-      {/* FOOTER LOGOUT */}
+      {/* --- FOOTER LOGOUT --- */}
       <div className="sidebar-footer">
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout ({userRole.replace('_', ' ')})
+        <button className="logout-btn" onClick={onLogout}>
+          Logout ({userRole.replace(/_/g, ' ')})
         </button>
       </div>
 

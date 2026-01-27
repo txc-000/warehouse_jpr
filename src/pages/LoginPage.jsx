@@ -1,23 +1,31 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
+import './LoginPage.css'; 
 
-function LoginPage() {
+// PENTING: Terima props { onLogin } dari App.jsx
+function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  
+  // State lokal untuk efek loading di tombol
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Logika Login Sederhana
-    if (username && password) {
-      console.log('Login berhasil:', username);
-      // Arahkan ke dashboard/halaman utama
-      navigate('/sepatu-masuk'); 
-    } else {
+    // Validasi Input Kosong
+    if (!username || !password) {
       alert('Silakan isi username dan password!');
+      return;
     }
+
+    setIsLoading(true); // Ubah tombol jadi loading
+
+    // Panggil fungsi login dari App.jsx
+    // Fungsi ini akan mengecek ke Supabase
+    await onLogin(username, password);
+    
+    // Matikan loading jika login gagal (jika sukses, App.jsx akan memindah halaman)
+    setIsLoading(false);
   };
 
   return (
@@ -46,6 +54,7 @@ function LoginPage() {
                 placeholder="Masukkan username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                disabled={isLoading} // Matikan input saat loading
               />
             </div>
           </div>
@@ -63,12 +72,19 @@ function LoginPage() {
                 placeholder="Masukkan password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading} // Matikan input saat loading
               />
             </div>
           </div>
 
-          <button type="submit" className="login-button">
-            Masuk Sekarang
+          {/* Tombol Login */}
+          <button 
+            type="submit" 
+            className="login-button" 
+            disabled={isLoading}
+            style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
+          >
+            {isLoading ? 'Sedang Memproses...' : 'Masuk Sekarang'}
           </button>
 
           <div className="login-footer">

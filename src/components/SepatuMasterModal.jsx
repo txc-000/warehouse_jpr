@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient'; // Kita butuh ini untuk ambil list paket
 import './EditModal.css'; 
-import './TransactionForm.css'; 
 
 function SepatuMasterModal({ onClose, onSave, initialData }) {
   
-  // State form
   const [formData, setFormData] = useState({
-    kodeSepatu: '',
-    namaSepatu: '',
-    brand: '',
-    harga: 0, // Default 0, biar tidak error di database/state utama
+    kode_barang: '',
+    nama_produk: '',
+    merk: '',
+    id_paket: '', // DATA BARU: ID Paket Seri
+    stok: 0, 
+    harga_dus: 0 
   });
 
+  const [paketList, setPaketList] = useState([]); // List pilihan paket
+
+  // Ambil Data Paket Seri buat Dropdown
   useEffect(() => {
+    const fetchPaket = async () => {
+      const { data } = await supabase.from('paket_seri').select('*');
+      setPaketList(data || []);
+    };
+    fetchPaket();
+
     if (initialData) {
       setFormData(initialData);
     }
@@ -27,29 +37,25 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Kita kirim data apa adanya. 
-    // Jika data baru, harga otomatis 0. 
-    // Jika edit data lama, harga lama tetap terbawa (hidden) tidak hilang.
-    onSave(formData); 
+    onSave(formData);
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content form-container">
-        <h3>{isEditMode ? 'Edit' : 'Tambah'} Data Master Sepatu</h3>
-        <p style={{fontSize: '0.85rem', color: '#666', marginBottom: '20px'}}>
-          Masukkan data fisik sepatu. Harga diatur terpisah oleh Pemilik.
-        </p>
+        <div className="modal-header">
+            <h3>{isEditMode ? 'Edit' : 'Tambah'} Data Master Sepatu</h3>
+            <button onClick={onClose} className="close-btn">&times;</button>
+        </div>
         
         <form onSubmit={handleSubmit}>
           
           <div className="form-group">
-            <label htmlFor="kodeSepatu">Kode Sepatu (SKU)</label>
+            <label>Kode Sepatu (SKU)</label>
             <input
               type="text"
-              id="kodeSepatu"
-              name="kodeSepatu"
-              value={formData.kodeSepatu}
+              name="kode_barang"
+              value={formData.kode_barang}
               onChange={handleChange}
               placeholder="Contoh: NK-AF1-001"
               required
@@ -57,39 +63,54 @@ function SepatuMasterModal({ onClose, onSave, initialData }) {
           </div>
           
           <div className="form-group">
-            <label htmlFor="namaSepatu">Nama Sepatu</label>
+            <label>Brand / Merk</label>
             <input
               type="text"
-              id="namaSepatu"
-              name="namaSepatu"
-              value={formData.namaSepatu}
-              onChange={handleChange}
-              placeholder="Contoh: Air Force 1 '07"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="brand">Brand</label>
-            <input
-              type="text"
-              id="brand"
-              name="brand"
-              value={formData.brand}
+              name="merk"
+              value={formData.merk}
               onChange={handleChange}
               placeholder="Contoh: Nike"
               required
             />
           </div>
 
-          {/* INPUT HARGA DIHAPUS TOTAL DARI SINI */}
+          <div className="form-group">
+            <label>Nama Produk</label>
+            <input
+              type="text"
+              name="nama_produk"
+              value={formData.nama_produk}
+              onChange={handleChange}
+              placeholder="Contoh: Air Force 1 '07"
+              required
+            />
+          </div>
+
+          {/* --- INPUT BARU: PILIH PAKET SERI --- */}
+          <div className="form-group">
+            <label>Pilih Paket Ukuran (Seri)</label>
+            <select
+              name="id_paket"
+              value={formData.id_paket || ''} // Handle kalau null
+              onChange={handleChange}
+              required
+              style={{padding: '10px', border:'1px solid #cbd5e1', borderRadius:'6px', background:'white'}}
+            >
+              <option value="" disabled>-- Pilih Seri Ukuran --</option>
+              {paketList.map((paket) => (
+                <option key={paket.id} value={paket.id}>
+                  {paket.nama_paket} (Isi {paket.total_qty} psg)
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="modal-actions">
             <button type="button" className="button-cancel" onClick={onClose}>
               Batal
             </button>
             <button type="submit" className="submit-button">
-              Simpan Data Master
+              {isEditMode ? 'Update Data' : 'Simpan Baru'}
             </button>
           </div>
         </form>

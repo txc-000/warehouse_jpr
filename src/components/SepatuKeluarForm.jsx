@@ -1,82 +1,133 @@
-import React, { useState, useMemo } from 'react';
-import '../components/TransactionForm.css'; // Pakai CSS form yang sama
-
-// --- (1) DATA MOCK (KONSISTEN DENGAN HALAMAN LAIN) ---
-const mockMerkList = [
-  { id: 1, nama: 'Nike' },
-  { id: 2, nama: 'Adidas' },
-  { id: 3, nama: 'New Balance' },
-  { id: 4, nama: 'Vans' },
-];
-
-const mockProdukList = [
-  { id: 1, kode: 'NK-RUN-005', nama: 'Sepatu Lari Model X', merkId: 1 },
-  { id: 2, kode: 'NK-AF1-001', nama: 'Air Force 1 \'07', merkId: 1 },
-  { id: 3, kode: 'AD-SDL-006', nama: 'Sandal Model Y', merkId: 2 },
-  { id: 4, kode: 'AD-SMB-002', nama: 'Samba OG', merkId: 2 },
-  { id: 5, kode: 'NB-550-003', nama: '550', merkId: 3 },
-  { id: 6, kode: 'VN-OLD-004', nama: 'Old Skool', merkId: 4 },
-];
-
-const mockPaketList = [
-  { id: 1, nama: 'Seri 38-42 (Isi 12)' },
-  { id: 2, nama: 'Seri 39-43 (Isi 12)' },
-  { id: 3, nama: 'Seri Anak A (Isi 20)' },
-  { id: 4, nama: 'Seri 40-44 (Isi 12)' },
-];
+import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '../supabaseClient';
+import '../components/TransactionForm.css'; // Kita "pinjam" CSS form yang sama biar konsisten
 
 function SepatuKeluar() {
-  // --- STATE ---
-  const [selectedMerkId, setSelectedMerkId] = useState('');
-  const [selectedProdukId, setSelectedProdukId] = useState(''); // Mengontrol Kode & Nama
+  // State Data Master
+  const [masterSepatuList, setMasterSepatuList] = useState([]);
+  const [paketList, setPaketList] = useState([]);
+  
+  // State Form
+  const [selectedMerk, setSelectedMerk] = useState('');
+  const [selectedProdukKode, setSelectedProdukKode] = useState('');
   const [selectedPaketId, setSelectedPaketId] = useState('');
   const [jumlahDus, setJumlahDus] = useState('1');
   const [tujuan, setTujuan] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // --- FILTER PRODUK ---
+  // 1. FETCH DATA DARI SUPABASE
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    // Ambil Sepatu (termasuk Stok untuk validasi)
+    const { data: sepatuData } = await supabase
+      .from('master_sepatu')
+      .select('kode_barang, nama_produk, merk, stok');
+    
+    // Ambil Paket Seri
+    const { data: paketData } = await supabase
+      .from('paket_seri')
+      .select('id, nama_paket, total_qty');
+
+    if (sepatuData) setMasterSepatuList(sepatuData);
+    if (paketData) setPaketList(paketData);
+  };
+
+  // 2. LOGIKA MERK UNIK
+  const merkListUnik = useMemo(() => {
+    const merks = masterSepatuList.map(item => item.merk);
+    return [...new Set(merks)];
+  }, [masterSepatuList]);
+
+  // 3. FILTER PRODUK BERDASARKAN MERK
   const filteredProdukList = useMemo(() => {
-    if (!selectedMerkId) return [];
-    return mockProdukList.filter(p => p.merkId === Number(selectedMerkId));
-  }, [selectedMerkId]);
+    if (!selectedMerk) return [];
+    return masterSepatuList.filter(p => p.merk === selectedMerk);
+  }, [selectedMerk, masterSepatuList]);
 
   const handleMerkChange = (e) => {
-    setSelectedMerkId(e.target.value);
-    setSelectedProdukId(''); // Reset produk
+    setSelectedMerk(e.target.value);
+    setSelectedProdukKode('');
   };
   
-  // --- SUBMIT ---
-  const handleSubmit = (event) => {
+  // 4. SUBMIT TRANSAKSI KELUAR
+  const handleSubmit = async (event) => {
     event.preventDefault(); 
-    
-    const merkTerpilih = mockMerkList.find(m => m.id === Number(selectedMerkId));
-    const produkTerpilih = mockProdukList.find(p => p.id === Number(selectedProdukId));
-    const paketTerpilih = mockPaketList.find(p => p.id === Number(selectedPaketId));
-    
-    const dataUntukBackend = {
-      id_transaksi: Date.now(), 
-      kode_barang: produkTerpilih ? produkTerpilih.kode : '-',
-      merk: merkTerpilih ? merkTerpilih.nama : '-',
-      nama_produk: produkTerpilih ? produkTerpilih.nama : '-',
-      nama_paket: paketTerpilih ? paketTerpilih.nama : '-',
-      jumlah_dus: Number(jumlahDus),
-      tujuan: tujuan, // Barang Keluar ke Tujuan/Customer
-      tanggal: new Date().toISOString()
-    };
+    setLoading(true);
 
-    console.log('Data Transaksi Keluar:', dataUntukBackend);
-    alert(`Transaksi Keluar Berhasil!\n\nKode: ${dataUntukBackend.kode_barang}\nProduk: ${dataUntukBackend.nama_produk}\nTujuan: ${dataUntukBackend.tujuan}`);
-    
-    // Reset Form
-    setSelectedMerkId('');
-    setSelectedProdukId('');
-    setSelectedPaketId('');
-    setJumlahDus('1');
-    setTujuan('');
+    const produkTerpilih = masterSepatuList.find(p => p.kode_barang === selectedProdukKode);
+    const paketTerpilih = paketList.find(p => p.id === parseInt(selectedPaketId));
+
+    // Validasi Data
+    if (!produkTerpilih || !paketTerpilih) {
+      alert("Mohon lengkapi data!");
+      setLoading(false);
+      return;
+    }
+
+    const dusKeluar = parseInt(jumlahDus);
+    const stokSekarang = produkTerpilih.stok || 0;
+
+    // --- VALIDASI PENTING: CEK STOK CUKUP GAK? ---
+    if (stokSekarang < dusKeluar) {
+      alert(`❌ STOK TIDAK CUKUP!\n\nStok saat ini: ${stokSekarang} Dus\nPermintaan: ${dusKeluar} Dus`);
+      setLoading(false);
+      return;
+    }
+
+    const totalPcs = dusKeluar * paketTerpilih.total_qty;
+
+    try {
+      // A. Simpan ke Riwayat Keluar
+      const { error: transError } = await supabase
+        .from('transaksi_keluar')
+        .insert([{
+          kode_barang: produkTerpilih.kode_barang,
+          nama_produk: produkTerpilih.nama_produk,
+          merk: produkTerpilih.merk,
+          nama_paket: paketTerpilih.nama_paket,
+          jumlah_dus: dusKeluar,
+          total_pcs: totalPcs,
+          tujuan: tujuan // Nama Toko/Customer
+        }]);
+
+      if (transError) throw transError;
+
+      // B. KURANGI STOK di Master Sepatu
+      const stokBaru = stokSekarang - dusKeluar;
+
+      const { error: updateError } = await supabase
+        .from('master_sepatu')
+        .update({ stok: stokBaru })
+        .eq('kode_barang', produkTerpilih.kode_barang);
+
+      if (updateError) throw updateError;
+
+      // Sukses
+      alert(`✅ Transaksi Keluar Berhasil!\nStok sisa: ${stokBaru} Dus.`);
+      
+      // Reset Form
+      setSelectedMerk('');
+      setSelectedProdukKode('');
+      setSelectedPaketId('');
+      setJumlahDus('1');
+      setTujuan('');
+      
+      // Refresh Data (Penting biar stok di dropdown update)
+      fetchData();
+
+    } catch (err) {
+      alert("Gagal menyimpan: " + err.message);
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="form-container">
-      <h3>Form Transaksi Sepatu Keluar (Grosir)</h3>
+      <h3>📤 Form Barang Keluar (Penjualan)</h3>
       
       <form onSubmit={handleSubmit}>
 
@@ -85,35 +136,32 @@ function SepatuKeluar() {
           <label htmlFor="merk">Merk</label>
           <select
             id="merk"
-            value={selectedMerkId}
+            value={selectedMerk}
             onChange={handleMerkChange}
             required
           >
             <option value="" disabled>-- Pilih Merk --</option>
-            {mockMerkList.map(merk => (
-              <option key={merk.id} value={merk.id}>
-                {merk.nama}
-              </option>
+            {merkListUnik.map((merk, idx) => (
+              <option key={idx} value={merk}>{merk}</option>
             ))}
           </select>
         </div>
 
-        {/* 2. KODE BARANG (SKU) */}
+        {/* 2. KODE BARANG */}
         <div className="form-group">
           <label htmlFor="kodeBarang">Kode Barang (SKU)</label>
           <select
             id="kodeBarang"
-            value={selectedProdukId}
-            // Ubah kode = Ubah nama juga
-            onChange={(e) => setSelectedProdukId(e.target.value)}
+            value={selectedProdukKode}
+            onChange={(e) => setSelectedProdukKode(e.target.value)}
             required
-            disabled={!selectedMerkId}
+            disabled={!selectedMerk}
             style={{ fontFamily: 'monospace', fontWeight: 'bold' }}
           >
             <option value="" disabled>-- Pilih Kode --</option>
             {filteredProdukList.map(produk => (
-              <option key={produk.id} value={produk.id}>
-                {produk.kode}
+              <option key={produk.kode_barang} value={produk.kode_barang}>
+                {produk.kode_barang} (Sisa: {produk.stok})
               </option>
             ))}
           </select>
@@ -124,16 +172,15 @@ function SepatuKeluar() {
           <label htmlFor="namaProduk">Nama Produk</label>
           <select
             id="namaProduk"
-            value={selectedProdukId}
-            // Ubah nama = Ubah kode juga
-            onChange={(e) => setSelectedProdukId(e.target.value)}
+            value={selectedProdukKode} // Value sama: Kode
+            onChange={(e) => setSelectedProdukKode(e.target.value)}
             required
-            disabled={!selectedMerkId}
+            disabled={!selectedMerk}
           >
             <option value="" disabled>-- Pilih Nama Produk --</option>
             {filteredProdukList.map(produk => (
-              <option key={produk.id} value={produk.id}>
-                {produk.nama}
+              <option key={produk.kode_barang} value={produk.kode_barang}>
+                {produk.nama_produk} (Sisa: {produk.stok})
               </option>
             ))}
           </select>
@@ -149,9 +196,9 @@ function SepatuKeluar() {
             required
           >
             <option value="" disabled>-- Pilih paket grosir --</option>
-            {mockPaketList.map(paket => (
+            {paketList.map(paket => (
               <option key={paket.id} value={paket.id}>
-                {paket.nama}
+                {paket.nama_paket} (Isi {paket.total_qty} psg)
               </option>
             ))}
           </select>
@@ -183,8 +230,13 @@ function SepatuKeluar() {
           />
         </div>
 
-        <button type="submit" className="submit-button">
-          Simpan Transaksi Keluar
+        <button 
+          type="submit" 
+          className="submit-button"
+          disabled={loading}
+          style={{background: '#2563eb'}} /* Warna Orange untuk Barang Keluar */
+        >
+          {loading ? 'Memproses...' : 'Simpan Transaksi Keluar'}
         </button>
       </form>
     </div>

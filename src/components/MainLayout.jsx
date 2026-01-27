@@ -1,16 +1,20 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom'; // Import Outlet
+import { Outlet } from 'react-router-dom'; 
 import Sidebar from './Sidebar.jsx';
-import '../App.css'; // Pastikan App.css di-import
+import '../App.css'; 
 
-function MainLayout() {
+// 1. PERBAIKAN: Tambahkan parameter { session, onLogout } di sini
+function MainLayout({ session, onLogout }) {
   return (
     <div className="app-container">
-      <Sidebar />
+      
+      {/* 2. PERBAIKAN: Kirim data 'role' dan fungsi 'onLogout' ke Sidebar */}
+      <Sidebar 
+        role={session?.role} 
+        onLogout={onLogout} 
+      />
+
       <main className="content-area">
-        {/* <Outlet> adalah placeholder di mana React Router 
-          akan me-render halaman yang cocok (Dashboard, SepatuKeluar, dll)
-        */}
         <Outlet />
       </main>
     </div>

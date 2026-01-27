@@ -1,41 +1,33 @@
-// src/pages/DashboardHomePage.jsx
-
 import React from 'react';
+import DashboardAdminMasuk from './Dashboard.jsx'; 
+import DashboardPemilik from './PemilikDashboard.jsx'; 
+import DashboardAdminKeluar from './AdminKeluarDashboard.jsx'; 
 
-// Import semua dashboard yang sudah kita buat
-import DashboardAdminMasuk from './Dashboard.jsx'; // Dashboard Admin Masuk
-import DashboardPemilik from './PemilikDashboard.jsx'; // Dashboard Pemilik
-import DashboardAdminKeluar from './AdminKeluarDashboard.jsx'; // Dashboard Admin Keluar
+function DashboardHomePage({ role }) {
+  // Normalisasi: ubah ke huruf kecil dan hapus spasi di awal/akhir
+  const userRole = role ? role.toLowerCase().trim() : '';
 
-function DashboardHomePage() {
-  
-  // --- INI ADALAH SAKLAR UNTUK TES ---
-  // Ganti nilai di bawah ini untuk melihat dashboard yang berbeda.
-  // Pilihan: 'pemilik', 'admin_masuk', 'admin_keluar'
-  
-  const userRole = 'pemilik'; // <-- GANTI INI UNTUK TES
-  
-  // ------------------------------------
-  // Di aplikasi nyata, 'userRole' ini akan Anda dapatkan dari
-  // state login, local storage, atau context.
-  // ------------------------------------
+  console.log("Dashboard Loaded. Role User:", userRole);
 
-  // Tampilkan dashboard yang sesuai berdasarkan role
+  // LOGIKA: Menerima format dengan underscore (_) maupun SPASI
+  
   if (userRole === 'pemilik') {
     return <DashboardPemilik />;
   } 
-  
-  else if (userRole === 'admin_masuk') {
+  else if (userRole === 'admin_masuk' || userRole === 'admin barang masuk') {
     return <DashboardAdminMasuk />;
   } 
-  
-  else if (userRole === 'admin_keluar') {
+  else if (userRole === 'admin_keluar' || userRole === 'admin barang keluar') {
     return <DashboardAdminKeluar />;
   } 
-  
   else {
-    // Jika role tidak dikenal, tampilkan default
-    return <DashboardAdminMasuk />;
+    return (
+      <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+        <h2>Selamat Datang!</h2>
+        <p>Sistem mendeteksi role Anda sebagai: <strong>"{userRole}"</strong></p>
+        <p>Dashboard untuk role ini sedang disiapkan.</p>
+      </div>
+    );
   }
 }
 
