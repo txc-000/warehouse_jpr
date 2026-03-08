@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import './Sidebar.css'; 
+import './sidebar.css'; 
 
 // Komponen Item Navigasi
 const NavItem = ({ title, to }) => (
