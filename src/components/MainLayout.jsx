@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom'; 
-import Sidebar from './Sidebar.jsx';
+import Sidebar from './sidebar.jsx';
 import '../App.css'; 
 
 // 1. PERBAIKAN: Tambahkan parameter { session, onLogout } di sini
